@@ -14,17 +14,50 @@ const TooGoodToGoMonitor = () => {
     { name: "La Maison du Chocolat - Champs-Élysées", address: "133 avenue des Champs-Élysées, 75008 Paris", category: "Chocolaterie" },
     { name: "La Maison du Chocolat - Saint-Germain", address: "19 rue de Sèvres, 75006 Paris", category: "Chocolaterie" },
     
-    // Autres magasins populaires
+    // Magasins dans un rayon de 1.2km autour du 88 boulevard Saint-Michel, 75006
+    // Zone 0-300m (très proche)
+    { name: "Boulangerie Saint-Michel", address: "Boulevard Saint-Michel, 75006 Paris", category: "Boulangerie", distance: "80m", zone: "immediate" },
+    { name: "Pomme de Pain", address: "Boulevard Saint-Michel, 75006 Paris", category: "Boulangerie", distance: "100m", zone: "immediate" },
+    { name: "La Croissanterie", address: "Boulevard Saint-Michel, 75006 Paris", category: "Boulangerie", distance: "120m", zone: "immediate" },
+    { name: "Le Choupinet", address: "1 Boulevard Saint-Michel, 75006 Paris", category: "Restaurant", distance: "150m", zone: "immediate" },
+    { name: "Le Rostand", address: "6 Place Edmond Rostand, 75006 Paris", category: "Café", distance: "200m", zone: "immediate" },
+    { name: "Le Luxembourg", address: "Place Edmond Rostand, 75006 Paris", category: "Café", distance: "250m", zone: "immediate" },
+    { name: "Dalloyau", address: "Place Edmond Rostand, 75006 Paris", category: "Pâtisserie", distance: "250m", zone: "immediate" },
+    
+    // Zone 300-600m (proche)
+    { name: "Le Cercle Luxembourg", address: "Place Edmond Rostand, 75006 Paris", category: "Restaurant", distance: "300m", zone: "proche" },
+    { name: "Lina's Sandwiches", address: "Rue Médicis, 75006 Paris", category: "Restaurant", distance: "350m", zone: "proche" },
+    { name: "Café Laurent", address: "Rue Gay-Lussac, 75005 Paris", category: "Café", distance: "400m", zone: "proche" },
+    { name: "Café de la Sorbonne", address: "Place de la Sorbonne, 75005 Paris", category: "Café", distance: "400m", zone: "proche" },
+    { name: "La Crêperie du Luxembourg", address: "Rue Soufflot, 75005 Paris", category: "Crêperie", distance: "450m", zone: "proche" },
+    { name: "Les Patios", address: "Place de la Sorbonne, 75005 Paris", category: "Restaurant", distance: "450m", zone: "proche" },
+    { name: "L'Écritoire", address: "Place de la Sorbonne, 75005 Paris", category: "Restaurant", distance: "500m", zone: "proche" },
+    { name: "Baker's Dozen", address: "Quartier Latin, 75005 Paris", category: "Boulangerie", distance: "500m", zone: "proche" },
+    { name: "Le Procope", address: "13 Rue de l'Ancienne Comédie, 75006 Paris", category: "Restaurant", distance: "550m", zone: "proche" },
+    
+    // Zone 600m-1.2km (étendue)
+    { name: "Boulangerie Mouffetard", address: "Rue Mouffetard, 75005 Paris", category: "Boulangerie", distance: "650m", zone: "etendue" },
+    { name: "Café de Flore", address: "172 Boulevard Saint-Germain, 75006 Paris", category: "Café", distance: "700m", zone: "etendue" },
+    { name: "Les Deux Magots", address: "6 Place Saint-Germain des Prés, 75006 Paris", category: "Café", distance: "750m", zone: "etendue" },
+    { name: "Pierre Hermé Saint-Germain", address: "72 Rue Bonaparte, 75006 Paris", category: "Pâtisserie", distance: "800m", zone: "etendue" },
+    { name: "Polidor", address: "41 Rue Monsieur-le-Prince, 75006 Paris", category: "Restaurant", distance: "850m", zone: "etendue" },
+    { name: "Brasserie Lipp", address: "151 Boulevard Saint-Germain, 75006 Paris", category: "Restaurant", distance: "900m", zone: "etendue" },
+    { name: "L'Ami Jean", address: "27 Rue Malar, 75007 Paris", category: "Restaurant", distance: "950m", zone: "etendue" },
+    { name: "Du Pain et des Idées Panthéon", address: "Rue Saint-Jacques, 75005 Paris", category: "Boulangerie", distance: "1000m", zone: "etendue" },
+    { name: "Le Comptoir du 6ème", address: "8 Avenue de l'Odéon, 75006 Paris", category: "Restaurant", distance: "1050m", zone: "etendue" },
+    { name: "La Grande Épicerie Bon Marché", address: "38 Rue de Sèvres, 75007 Paris", category: "Épicerie", distance: "1100m", zone: "etendue" },
+    { name: "Boulangerie Julien Saint-Jacques", address: "Rue Saint-Jacques, 75005 Paris", category: "Boulangerie", distance: "1150m", zone: "etendue" },
+    { name: "Angelina Saint-Germain", address: "Boulevard Saint-Germain, 75006 Paris", category: "Salon de thé", distance: "1200m", zone: "etendue" },
+    
+    // Autres magasins populaires Paris
     { name: "Kayser - Assas", address: "87 rue d'Assas, 75006 Paris", category: "Boulangerie", favorite: true },
     { name: "Maison Louis", address: "Rue Saint-Jacques, 75005 Paris", category: "Pâtisserie", favorite: true },
     { name: "Boulangerie Julien", address: "75 Rue Saint-Antoine, 75004 Paris", category: "Boulangerie" },
     { name: "Breizh Café", address: "109 Rue Vieille du Temple, 75003 Paris", category: "Crêperie" },
     { name: "Du Pain et des Idées", address: "34 Rue Yves Toudic, 75010 Paris", category: "Boulangerie" },
-    { name: "Pierre Hermé", address: "72 Rue Bonaparte, 75006 Paris", category: "Pâtisserie" },
     { name: "L'As du Fallafel", address: "34 Rue des Rosiers, 75004 Paris", category: "Restaurant" },
     { name: "Berthillon", address: "31 Rue Saint-Louis en l'Île, 75004 Paris", category: "Glacier" },
     { name: "Poilâne", address: "8 Rue du Cherche-Midi, 75006 Paris", category: "Boulangerie" },
-    { name: "Café de Flore", address: "172 Boulevard Saint-Germain, 75006 Paris", category: "Café" },
     { name: "Ladurée Champs-Élysées", address: "75 Avenue des Champs-Élysées, 75008 Paris", category: "Pâtisserie" },
     { name: "Le Comptoir du Relais", address: "9 Carrefour de l'Odéon, 75006 Paris", category: "Restaurant" },
     { name: "Bistrot Paul Bert", address: "18 Rue Paul Bert, 75011 Paris", category: "Restaurant" },
@@ -46,7 +79,9 @@ const TooGoodToGoMonitor = () => {
       lastCheck: "12:00",
       rating: 4.8,
       category: "Chocolaterie",
-      favorite: false
+      favorite: false,
+      maxNotificationsPerDay: 5,
+      notificationsToday: 0
     },
     {
       id: 2,
@@ -59,7 +94,9 @@ const TooGoodToGoMonitor = () => {
       lastCheck: "12:00",
       rating: 4.6,
       category: "Boulangerie",
-      favorite: true
+      favorite: true,
+      maxNotificationsPerDay: 8,
+      notificationsToday: 2
     },
     {
       id: 3,
@@ -72,16 +109,43 @@ const TooGoodToGoMonitor = () => {
       lastCheck: "12:00",
       rating: 4.7,
       category: "Pâtisserie",
-      favorite: true
+      favorite: true,
+      maxNotificationsPerDay: 3,
+      notificationsToday: 1
+    },
+    {
+      id: 4,
+      name: "Le Rostand",
+      address: "6 Place Edmond Rostand, 75006 Paris",
+      available: true,
+      price: "4.50",
+      quantity: 1,
+      pickupTime: "18:30 - 19:30",
+      lastCheck: "12:00",
+      rating: 4.5,
+      category: "Café",
+      favorite: false,
+      maxNotificationsPerDay: 4,
+      notificationsToday: 0
     }
   ]);
 
   const [checkTimes, setCheckTimes] = useState(["09:00", "12:00", "15:00", "18:00"]);
+  const [checkConfig, setCheckConfig] = useState({
+    frequency: 30, // minutes
+    weekdayStart: "08:00",
+    weekdayEnd: "19:00", 
+    weekendStart: "11:00",
+    weekendEnd: "21:00",
+    maxNotificationsPerHour: 3,
+    enabled: true
+  });
   const [notificationConfig, setNotificationConfig] = useState({
     emails: ["", ""],
     emailsEnabled: [false, false],
-    phones: ["", ""],
+    smsPhones: ["", ""],
     smsEnabled: [false, false],
+    whatsappPhones: ["", ""],
     whatsappEnabled: [false, false]
   });
   const [showAddStore, setShowAddStore] = useState(false);
@@ -95,6 +159,8 @@ const TooGoodToGoMonitor = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filterCategory, setFilterCategory] = useState("Tous");
   const [isMobile, setIsMobile] = useState(false);
+  const [showProximityCheck, setShowProximityCheck] = useState(false);
+  const [proximityResults, setProximityResults] = useState([]);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
   const [newStore, setNewStore] = useState({
@@ -280,7 +346,7 @@ const TooGoodToGoMonitor = () => {
     },
     storeDetails: {
       display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+      gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)',
       gap: '0.5rem'
     },
     detailBox: {
@@ -466,7 +532,9 @@ const TooGoodToGoMonitor = () => {
         pickupTime: "17:30 - 19:00",
         lastCheck: "12:00",
         rating: (Math.random() * 2 + 3).toFixed(1),
-        favorite: false
+        favorite: false,
+        maxNotificationsPerDay: 5,
+        notificationsToday: 0
       };
       setStores([...stores, store]);
       setNewStore({ name: "", address: "", category: "Restaurant" });
@@ -485,16 +553,59 @@ const TooGoodToGoMonitor = () => {
     ));
   };
 
+  const updateStoreNotificationLimit = (id, newLimit) => {
+    setStores(stores.map(store => 
+      store.id === id ? { ...store, maxNotificationsPerDay: newLimit } : store
+    ));
+  };
+
   const updateEmailConfig = (index, value) => {
     const newEmails = [...notificationConfig.emails];
     newEmails[index] = value;
     setNotificationConfig({...notificationConfig, emails: newEmails});
   };
 
-  const updatePhoneConfig = (index, value) => {
-    const newPhones = [...notificationConfig.phones];
+  const updateSmsPhoneConfig = (index, value) => {
+    const newPhones = [...notificationConfig.smsPhones];
     newPhones[index] = value;
-    setNotificationConfig({...notificationConfig, phones: newPhones});
+    setNotificationConfig({...notificationConfig, smsPhones: newPhones});
+  };
+
+  const updateWhatsappPhoneConfig = (index, value) => {
+    const newPhones = [...notificationConfig.whatsappPhones];
+    newPhones[index] = value;
+    setNotificationConfig({...notificationConfig, whatsappPhones: newPhones});
+  };
+
+  const copyFromSmsToWhatsapp = (index) => {
+    const newPhones = [...notificationConfig.whatsappPhones];
+    newPhones[index] = notificationConfig.smsPhones[index];
+    setNotificationConfig({...notificationConfig, whatsappPhones: newPhones});
+  };
+
+  const checkProximityStores = () => {
+    // Filtrer les magasins proches du 88 bd Saint-Michel
+    const proximityStores = popularStores.filter(store => store.distance);
+    
+    // Trier par distance (convertir les distances en nombres pour le tri)
+    const sortedStores = proximityStores.sort((a, b) => {
+      const distanceA = parseInt(a.distance.replace('m', ''));
+      const distanceB = parseInt(b.distance.replace('m', ''));
+      return distanceA - distanceB;
+    });
+
+    // Simuler les disponibilités pour ces magasins
+    const results = sortedStores.map(store => ({
+      ...store,
+      available: Math.random() > 0.4, // 60% de chance d'être disponible
+      price: (Math.random() * 8 + 3).toFixed(2),
+      quantity: Math.floor(Math.random() * 4) + 1,
+      pickupTime: "18:00 - 19:30",
+      lastCheck: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    }));
+
+    setProximityResults(results);
+    setShowProximityCheck(true);
   };
 
   const toggleEmailEnabled = (index) => {
@@ -516,6 +627,12 @@ const TooGoodToGoMonitor = () => {
   };
 
   const simulateCheck = () => {
+    // Vérifier si on est dans les heures de surveillance
+    if (!checkConfig.enabled || !isInCheckingHours()) {
+      alert(`🕐 Surveillance ${!checkConfig.enabled ? 'désactivée' : 'hors horaires'}\n${isWeekend() ? 'Week-end' : 'Semaine'}: ${isWeekend() ? checkConfig.weekendStart + ' - ' + checkConfig.weekendEnd : checkConfig.weekdayStart + ' - ' + checkConfig.weekdayEnd}`);
+      return;
+    }
+
     const currentTime = new Date().toLocaleTimeString('fr-FR', { 
       hour: '2-digit', 
       minute: '2-digit' 
@@ -531,17 +648,38 @@ const TooGoodToGoMonitor = () => {
     
     setStores(updatedStores);
     
-    // Simulation de notifications
-    const availableStores = updatedStores.filter(store => store.available);
+    // Vérifier la limitation des notifications par heure
+    const oneHourAgo = Date.now() - (60 * 60 * 1000);
+    const recentNotifications = notifications.filter(notif => {
+      const notifTime = new Date();
+      const [hours, minutes] = notif.time.split(':');
+      notifTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      return notifTime.getTime() > oneHourAgo;
+    });
+
+    const canSendNotification = recentNotifications.length < checkConfig.maxNotificationsPerHour;
+    
+    // Filtrer les magasins disponibles qui n'ont pas atteint leur limite quotidienne
+    const availableStores = updatedStores.filter(store => 
+      store.available && store.notificationsToday < store.maxNotificationsPerDay
+    );
+    
     const enabledNotifications = notificationConfig.emailsEnabled.some(e => e) || 
                                 notificationConfig.smsEnabled.some(s => s) || 
                                 notificationConfig.whatsappEnabled.some(w => w);
                                 
-    if (availableStores.length > 0 && enabledNotifications) {
+    if (availableStores.length > 0 && enabledNotifications && canSendNotification) {
       const methods = [];
       if (notificationConfig.emailsEnabled.some(e => e)) methods.push("📧 Email");
       if (notificationConfig.smsEnabled.some(s => s)) methods.push("📱 SMS");
       if (notificationConfig.whatsappEnabled.some(w => w)) methods.push("💬 WhatsApp");
+      
+      // Incrémenter le compteur de notifications pour ces magasins
+      setStores(prev => prev.map(store => 
+        availableStores.find(as => as.id === store.id) 
+          ? { ...store, notificationsToday: store.notificationsToday + 1 }
+          : store
+      ));
       
       const newNotification = {
         id: Date.now(),
@@ -551,6 +689,12 @@ const TooGoodToGoMonitor = () => {
         methods: methods.join(", ")
       };
       setNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
+    } else if (updatedStores.filter(s => s.available).length > 0 && enabledNotifications && !canSendNotification) {
+      // Notification bloquée par la limitation globale
+      console.log(`🚫 Notification bloquée: ${recentNotifications.length}/${checkConfig.maxNotificationsPerHour} notifications dans la dernière heure`);
+    } else if (updatedStores.filter(s => s.available).length > 0 && availableStores.length === 0) {
+      // Notification bloquée par les limites individuelles des magasins
+      console.log('🚫 Notification bloquée: tous les magasins ont atteint leur limite quotidienne');
     }
   };
 
@@ -572,6 +716,36 @@ const TooGoodToGoMonitor = () => {
       "Glacier": "🍦"
     };
     return emojis[category] || "🏪";
+  };
+
+  const isWeekend = () => {
+    const day = new Date().getDay();
+    return day === 0 || day === 6; // Dimanche = 0, Samedi = 6
+  };
+
+  const isInCheckingHours = () => {
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // en minutes depuis minuit
+    
+    const startTime = isWeekend() ? checkConfig.weekendStart : checkConfig.weekdayStart;
+    const endTime = isWeekend() ? checkConfig.weekendEnd : checkConfig.weekdayEnd;
+    
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    
+    return currentTime >= startMinutes && currentTime <= endMinutes;
+  };
+
+  const getNextCheckTime = () => {
+    if (!checkConfig.enabled) return "Désactivé";
+    
+    const now = new Date();
+    const nextCheck = new Date(now.getTime() + checkConfig.frequency * 60000);
+    
+    return nextCheck.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   };
 
   const favoriteStores = stores.filter(store => store.favorite);
@@ -698,7 +872,7 @@ const TooGoodToGoMonitor = () => {
                   <div key={index} style={{ marginBottom: '0.75rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                        Téléphone {index + 1}:
+                        Téléphone SMS {index + 1}:
                       </span>
                       <button
                         onClick={() => toggleSmsEnabled(index)}
@@ -714,8 +888,8 @@ const TooGoodToGoMonitor = () => {
                     <input
                       type="tel"
                       placeholder={`+33 6 ${index === 0 ? '12 34 56 78' : '87 65 43 21'}`}
-                      value={notificationConfig.phones[index]}
-                      onChange={(e) => updatePhoneConfig(index, e.target.value)}
+                      value={notificationConfig.smsPhones[index]}
+                      onChange={(e) => updateSmsPhoneConfig(index, e.target.value)}
                       style={styles.input}
                       disabled={!notificationConfig.smsEnabled[index]}
                     />
@@ -723,7 +897,7 @@ const TooGoodToGoMonitor = () => {
                 ))}
               </div>
 
-              {/* Configuration WhatsApp */}
+              {/* Configuration WhatsApp (2 numéros indépendants) */}
               <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)', border: '1px solid #5eead4'}}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                   <MessageCircle size={20} style={{ color: '#0d9488' }} />
@@ -734,7 +908,7 @@ const TooGoodToGoMonitor = () => {
                   <div key={index} style={{ marginBottom: '0.75rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                        WhatsApp {index + 1}: {notificationConfig.phones[index] || `(utilise téléphone ${index + 1})`}
+                        Téléphone WhatsApp {index + 1}:
                       </span>
                       <button
                         onClick={() => toggleWhatsappEnabled(index)}
@@ -743,16 +917,363 @@ const TooGoodToGoMonitor = () => {
                           background: notificationConfig.whatsappEnabled[index] ? '#10b981' : '#d1d5db',
                           color: notificationConfig.whatsappEnabled[index] ? 'white' : '#6b7280'
                         }}
-                        disabled={!notificationConfig.phones[index]}
                       >
                         {notificationConfig.whatsappEnabled[index] ? '✅' : '❌'}
                       </button>
+                      {notificationConfig.smsPhones[index] && (
+                        <button
+                          onClick={() => copyFromSmsToWhatsapp(index)}
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            background: '#e0e7ff',
+                            color: '#3730a3',
+                            border: 'none',
+                            borderRadius: '0.25rem',
+                            fontSize: '0.65rem',
+                            cursor: 'pointer'
+                          }}
+                          title="Copier depuis SMS"
+                        >
+                          📋 SMS
+                        </button>
+                      )}
+
+        {/* Résultats vérification proximité */}
+        {showProximityCheck && (
+          <div style={styles.settingsPanel}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
+                📍 Magasins proches - Vérification instantanée
+              </h2>
+              <button
+                onClick={() => setShowProximityCheck(false)}
+                style={{
+                  padding: '0.5rem',
+                  background: '#fee2e2',
+                  color: '#dc2626',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #a7f3d0', marginBottom: '1rem'}}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <MapPin size={20} style={{ color: '#059669' }} />
+                <span style={{ fontWeight: '600', fontSize: '1rem' }}>
+                  🎯 Rayon 600m depuis 88 bd Saint-Michel
+                </span>
+              </div>
+              <p style={{ fontSize: '0.875rem', color: '#047857', margin: 0 }}>
+                <strong>{proximityResults.length} magasins</strong> vérifiés, triés du plus proche au plus éloigné.
+                <strong> {proximityResults.filter(s => s.available).length} disponible(s)</strong> maintenant !
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {proximityResults.map((store, index) => (
+                <div key={index} style={{
+                  ...styles.storeCard,
+                  ...(store.available ? styles.favoriteCard : {}),
+                  border: store.available ? '2px solid #10b981' : '2px solid #d1d5db'
+                }}>
+                  <div style={styles.storeHeader}>
+                    <div style={styles.storeInfo}>
+                      <div style={styles.storeName}>
+                        <span style={{ fontSize: '1.5rem' }}>{getCategoryEmoji(store.category)}</span>
+                        <h3 style={{...styles.storeTitle, color: store.available ? '#059669' : '#6b7280'}}>
+                          #{index + 1} {store.name}
+                        </h3>
+                        <span style={{ 
+                          ...styles.badge, 
+                          background: '#dcfce7', 
+                          color: '#166534',
+                          fontWeight: 'bold'
+                        }}>
+                          📍 {store.distance}
+                        </span>
+                        <span style={{
+                          ...styles.badge,
+                          ...(store.available ? styles.badgeAvailable : styles.badgeUnavailable)
+                        }}>
+                          {store.available ? '✅ DISPONIBLE' : '❌ Rupture'}
+                        </span>
+                      </div>
+                      <div style={styles.storeAddress}>
+                        <MapPin size={16} style={{ color: '#3b82f6' }} />
+                        <span>{store.address}</span>
+                      </div>
+                      {store.available && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginTop: '1rem' }}>
+                          <div style={{...styles.detailBox, ...styles.detailBoxBlue}}>
+                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>💰 Prix:</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                              <Euro size={16} />
+                              <span style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>{store.price}</span>
+                            </div>
+                          </div>
+                          <div style={{...styles.detailBox, ...styles.detailBoxPurple}}>
+                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>📦 Quantité:</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '1.125rem', marginTop: '0.25rem' }}>{store.quantity}</div>
+                          </div>
+                          <div style={{...styles.detailBox, ...styles.detailBoxOrange}}>
+                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🕐 Retrait:</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '0.875rem' }}>{store.pickupTime}</div>
+                          </div>
+                          <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
+                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🔄 Vérif:</div>
+                            <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '1rem' }}>{store.lastCheck}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                    {store.available && (
+                      <div style={{ marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <button
+                          style={{
+                            padding: '0.75rem 1.5rem',
+                            background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.75rem',
+                            cursor: 'pointer',
+                            fontWeight: '600',
+                            fontSize: '0.875rem'
+                          }}
+                          onClick={() => {
+                            // Simuler l'ajout aux magasins surveillés
+                            const newStore = {
+                              id: Date.now(),
+                              name: store.name,
+                              address: store.address,
+                              category: store.category,
+                              available: store.available,
+                              price: store.price,
+                              quantity: store.quantity,
+                              pickupTime: store.pickupTime,
+                              lastCheck: store.lastCheck,
+                              rating: (Math.random() * 2 + 3).toFixed(1),
+                              favorite: false,
+                              maxNotificationsPerDay: 5,
+                              notificationsToday: 0
+                            };
+                            setStores(prev => [...prev, newStore]);
+                            alert(`✅ ${store.name} ajouté à vos magasins surveillés !`);
+                          }}
+                        >
+                          ➕ Surveiller
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f0f9ff', borderRadius: '0.75rem', border: '1px solid #bfdbfe' }}>
+              <p style={{ fontSize: '0.875rem', color: '#1e40af', margin: 0, lineHeight: '1.4' }}>
+                💡 <strong>Astuce :</strong> Cliquez sur "➕ Surveiller" pour ajouter un magasin disponible à votre liste de surveillance permanente.
+                Les distances sont calculées à vol d'oiseau depuis le 88 boulevard Saint-Michel.
+              </p>
+            </div>
+          </div>
+        )}
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder={`+33 6 ${index === 0 ? '11 22 33 44' : '99 88 77 66'}`}
+                      value={notificationConfig.whatsappPhones[index]}
+                      onChange={(e) => updateWhatsappPhoneConfig(index, e.target.value)}
+                      style={styles.input}
+                      disabled={!notificationConfig.whatsappEnabled[index]}
+                    />
                   </div>
                 ))}
                 <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                  💡 WhatsApp utilise automatiquement les numéros configurés dans SMS
+                  💡 <strong>Indépendant des SMS :</strong> Vous pouvez utiliser des numéros différents ou copier depuis SMS
                 </p>
+              </div>
+
+              {/* Configuration des vérifications */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
+                  ⏰ Paramètres de vérification
+                </h3>
+                
+                <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '1px solid #f59e0b'}}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <Clock size={20} style={{ color: '#d97706' }} />
+                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>🔄 Fréquence de vérification</span>
+                    <button
+                      onClick={() => setCheckConfig({...checkConfig, enabled: !checkConfig.enabled})}
+                      style={{
+                        marginLeft: 'auto',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer',
+                        background: checkConfig.enabled ? '#10b981' : '#d1d5db',
+                        color: checkConfig.enabled ? 'white' : '#6b7280',
+                        fontSize: '0.75rem',
+                        fontWeight: '600'
+                      }}
+                    >
+                      {checkConfig.enabled ? '✅ Activé' : '❌ Désactivé'}
+                    </button>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
+                        📊 Vérifier toutes les :
+                      </label>
+                      <select
+                        value={checkConfig.frequency}
+                        onChange={(e) => setCheckConfig({...checkConfig, frequency: parseInt(e.target.value)})}
+                        style={styles.select}
+                        disabled={!checkConfig.enabled}
+                      >
+                        <option value={5}>5 minutes ⚡</option>
+                        <option value={15}>15 minutes 🔥</option>
+                        <option value={30}>30 minutes ⭐</option>
+                        <option value={60}>60 minutes 🕐</option>
+                        <option value={120}>120 minutes 😴</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
+                        🔔 Max notifications/heure :
+                      </label>
+                      <select
+                        value={checkConfig.maxNotificationsPerHour}
+                        onChange={(e) => setCheckConfig({...checkConfig, maxNotificationsPerHour: parseInt(e.target.value)})}
+                        style={styles.select}
+                        disabled={!checkConfig.enabled}
+                      >
+                        <option value={1}>1 notification/h 🤫</option>
+                        <option value={2}>2 notifications/h 😌</option>
+                        <option value={3}>3 notifications/h ⭐</option>
+                        <option value={5}>5 notifications/h 🔥</option>
+                        <option value={10}>10 notifications/h ⚡</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
+                        📅 Semaine (Lun-Ven) :
+                      </label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="time"
+                          value={checkConfig.weekdayStart}
+                          onChange={(e) => setCheckConfig({...checkConfig, weekdayStart: e.target.value})}
+                          style={{...styles.input, flex: 1}}
+                          disabled={!checkConfig.enabled}
+                        />
+                        <span style={{ color: '#6b7280' }}>à</span>
+                        <input
+                          type="time"
+                          value={checkConfig.weekdayEnd}
+                          onChange={(e) => setCheckConfig({...checkConfig, weekdayEnd: e.target.value})}
+                          style={{...styles.input, flex: 1}}
+                          disabled={!checkConfig.enabled}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
+                        🎉 Week-end (Sam-Dim) :
+                      </label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="time"
+                          value={checkConfig.weekendStart}
+                          onChange={(e) => setCheckConfig({...checkConfig, weekendStart: e.target.value})}
+                          style={{...styles.input, flex: 1}}
+                          disabled={!checkConfig.enabled}
+                        />
+                        <span style={{ color: '#6b7280' }}>à</span>
+                        <input
+                          type="time"
+                          value={checkConfig.weekendEnd}
+                          onChange={(e) => setCheckConfig({...checkConfig, weekendEnd: e.target.value})}
+                          style={{...styles.input, flex: 1}}
+                          disabled={!checkConfig.enabled}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                    <p style={{ fontSize: '0.75rem', color: '#92400e', margin: 0, lineHeight: '1.4' }}>
+                      💡 <strong>Configuration actuelle :</strong> Vérification toutes les {checkConfig.frequency} minutes, 
+                      {new Date().getDay() === 0 || new Date().getDay() === 6 ? ` de ${checkConfig.weekendStart} à ${checkConfig.weekendEnd} (week-end)` : ` de ${checkConfig.weekdayStart} à ${checkConfig.weekdayEnd} (semaine)`}, 
+                      maximum {checkConfig.maxNotificationsPerHour} notifications par heure.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Zone de proximité */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
+                  📍 Magasins proches du 88 bd Saint-Michel
+                </h3>
+                
+                <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #a7f3d0'}}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <MapPin size={20} style={{ color: '#059669' }} />
+                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>🎯 Rayon 600 mètres</span>
+                  </div>
+                  
+                  <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ fontSize: '0.875rem', color: '#047857', margin: '0 0 0.5rem 0' }}>
+                      <strong>{popularStores.filter(s => s.distance).length} magasins</strong> trouvés dans votre quartier :
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {popularStores.filter(s => s.distance).slice(0, 8).map((store, index) => (
+                        <span key={index} style={{ 
+                          fontSize: '0.75rem', 
+                          background: '#dcfce7', 
+                          color: '#166534', 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '9999px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}>
+                          {getCategoryEmoji(store.category)} {store.name.split(' - ')[0]} 
+                          <span style={{ color: '#10b981', fontWeight: '600' }}>({store.distance})</span>
+                        </span>
+                      ))}
+                      {popularStores.filter(s => s.distance).length > 8 && (
+                        <span style={{ 
+                          fontSize: '0.75rem', 
+                          background: '#f3f4f6', 
+                          color: '#6b7280', 
+                          padding: '0.25rem 0.5rem', 
+                          borderRadius: '9999px'
+                        }}>
+                          +{popularStores.filter(s => s.distance).length - 8} autres...
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                    <p style={{ fontSize: '0.75rem', color: '#047857', margin: 0, lineHeight: '1.4' }}>
+                      💡 <strong>Astuce :</strong> Ces magasins sont tous à moins de 10 minutes à pied ! 
+                      Ajoutez-les avec des limites de notifications adaptées à vos habitudes.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -834,10 +1355,20 @@ const TooGoodToGoMonitor = () => {
                                     <span style={{ truncate: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{store.name}</span>
                                     {store.favorite && <Heart size={12} style={{ color: '#ef4444', flexShrink: 0 }} />}
                                   </div>
-                                  <div style={{ fontSize: '0.75rem', color: '#6b7280', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{store.address}</div>
-                                  <span style={{ fontSize: '0.65rem', background: '#f3f4f6', color: '#6b7280', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
-                                    {store.category}
-                                  </span>
+                                  <div style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                    {store.address}
+                                    {store.distance && <span style={{ color: '#10b981', fontWeight: '600', marginLeft: '0.5rem' }}>📍 {store.distance}</span>}
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
+                                    <span style={{ fontSize: '0.65rem', background: '#f3f4f6', color: '#6b7280', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
+                                      {store.category}
+                                    </span>
+                                    {store.distance && (
+                                      <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
+                                        Proche
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -958,6 +1489,40 @@ const TooGoodToGoMonitor = () => {
                                 <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔄 Dernière:</div>
                                 <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.875rem' : '1rem' }}>{store.lastCheck}</div>
                               </div>
+                              <div style={{...styles.detailBox, background: '#fef3c7', color: '#92400e'}}>
+                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔔 Notifs/jour:</div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '0.875rem' : '1rem' }}>
+                                    {store.notificationsToday}/{store.maxNotificationsPerDay}
+                                  </span>
+                                </div>
+                              </div>
+                              <div style={{...styles.detailBox, background: '#e0e7ff', color: '#3730a3'}}>
+                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.65rem' : '0.75rem' }}>🎯 Limite:</div>
+                                <select
+                                  value={store.maxNotificationsPerDay}
+                                  onChange={(e) => updateStoreNotificationLimit(store.id, parseInt(e.target.value))}
+                                  style={{
+                                    marginTop: '0.25rem',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                    fontWeight: 'bold',
+                                    color: '#3730a3',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                  }}
+                                >
+                                  <option value={1}>1/jour</option>
+                                  <option value={2}>2/jour</option>
+                                  <option value={3}>3/jour</option>
+                                  <option value={5}>5/jour</option>
+                                  <option value={8}>8/jour</option>
+                                  <option value={10}>10/jour</option>
+                                  <option value={15}>15/jour</option>
+                                  <option value={20}>20/jour</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
                           <div style={styles.storeActions}>
@@ -1031,6 +1596,40 @@ const TooGoodToGoMonitor = () => {
                               <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
                                 <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔄 Dernière:</div>
                                 <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.875rem' : '1rem' }}>{store.lastCheck}</div>
+                              </div>
+                              <div style={{...styles.detailBox, background: '#fef3c7', color: '#92400e'}}>
+                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔔 Notifs/jour:</div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
+                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '0.875rem' : '1rem' }}>
+                                    {store.notificationsToday}/{store.maxNotificationsPerDay}
+                                  </span>
+                                </div>
+                              </div>
+                              <div style={{...styles.detailBox, background: '#e0e7ff', color: '#3730a3'}}>
+                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.65rem' : '0.75rem' }}>🎯 Limite:</div>
+                                <select
+                                  value={store.maxNotificationsPerDay}
+                                  onChange={(e) => updateStoreNotificationLimit(store.id, parseInt(e.target.value))}
+                                  style={{
+                                    marginTop: '0.25rem',
+                                    border: 'none',
+                                    background: 'transparent',
+                                    fontSize: isMobile ? '0.75rem' : '0.875rem',
+                                    fontWeight: 'bold',
+                                    color: '#3730a3',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                  }}
+                                >
+                                  <option value={1}>1/jour</option>
+                                  <option value={2}>2/jour</option>
+                                  <option value={3}>3/jour</option>
+                                  <option value={5}>5/jour</option>
+                                  <option value={8}>8/jour</option>
+                                  <option value={10}>10/jour</option>
+                                  <option value={15}>15/jour</option>
+                                  <option value={20}>20/jour</option>
+                                </select>
                               </div>
                             </div>
                           </div>
@@ -1115,8 +1714,29 @@ const TooGoodToGoMonitor = () => {
                     <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#ef4444' }}>{favoriteStores.length}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>⏰ Vérifs/jour:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#8b5cf6' }}>{checkTimes.length}</span>
+                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>⏰ Fréquence:</span>
+                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#8b5cf6' }}>
+                      {checkConfig.enabled ? `${checkConfig.frequency}min` : 'OFF'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
+                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🎯 Statut:</span>
+                    <span style={{ 
+                      fontWeight: 'bold', 
+                      fontSize: isMobile ? '0.875rem' : '1rem', 
+                      color: checkConfig.enabled && isInCheckingHours() ? '#10b981' : '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}>
+                      {checkConfig.enabled ? (isInCheckingHours() ? '✅ Actif' : '😴 Hors horaires') : '❌ Désactivé'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
+                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🛡️ Limite notifs/h:</span>
+                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#f59e0b' }}>
+                      {checkConfig.maxNotificationsPerHour}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
                     <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>📱 Notifs actives:</span>
@@ -1131,7 +1751,7 @@ const TooGoodToGoMonitor = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
                     <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🔄 Prochaine:</span>
                     <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#f59e0b' }}>
-                      {checkTimes.find(time => time > new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) || checkTimes[0]}
+                      {getNextCheckTime()}
                     </span>
                   </div>
                 </div>
