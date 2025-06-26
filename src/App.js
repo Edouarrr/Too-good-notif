@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Plus, Settings, Trash2, Edit3, Check, X, Clock, Mail, MapPin, Euro, Smartphone, MessageCircle, Search, Star, TrendingUp, Heart, Download } from 'lucide-react';
+import { Bell, Plus, Settings, Trash2, Edit3, Check, X, Clock, Mail, MapPin, Euro, Smartphone, MessageCircle, Search, Star, TrendingUp, Heart, Download, RefreshCw } from 'lucide-react';
 
 const TooGoodToGoMonitor = () => {
   // Liste des magasins populaires à Paris pour l'autocomplétion
@@ -61,390 +61,198 @@ const TooGoodToGoMonitor = () => {
     { name: "Ladurée Champs-Élysées", address: "75 Avenue des Champs-Élysées, 75008 Paris", category: "Pâtisserie" },
     { name: "Le Comptoir du Relais", address: "9 Carrefour de l'Odéon, 75006 Paris", category: "Restaurant" },
     { name: "Bistrot Paul Bert", address: "18 Rue Paul Bert, 75011 Paris", category: "Restaurant" },
-    { name: "Eric Kayser - Monge", address: "8 rue Monge, 75005 Paris", category: "Boulangerie" },
-    { name: "Des Gâteaux et du Pain", address: "63 Boulevard Pasteur, 75015 Paris", category: "Boulangerie" },
-    { name: "Chambelland", address: "14 Rue Ternaux, 75011 Paris", category: "Boulangerie" },
-    { name: "Ten Belles", address: "10 Rue de la Grange aux Belles, 75010 Paris", category: "Café" }
   ];
 
-  const [stores, setStores] = useState([
-    {
-      id: 1,
-      name: "La Maison du Chocolat - Faubourg Saint-Honoré",
-      address: "225 rue du Faubourg Saint-Honoré, 75008 Paris",
-      available: true,
-      price: "4.99",
-      quantity: 3,
-      pickupTime: "18:00 - 19:30",
-      lastCheck: "12:00",
-      rating: 4.8,
-      category: "Chocolaterie",
-      favorite: false,
-      maxNotificationsPerDay: 5,
-      notificationsToday: 0
-    },
-    {
-      id: 2,
-      name: "Kayser - Assas",
-      address: "87 rue d'Assas, 75006 Paris",
-      available: false,
-      price: "3.99",
-      quantity: 0,
-      pickupTime: "17:00 - 18:30",
-      lastCheck: "12:00",
-      rating: 4.6,
-      category: "Boulangerie",
-      favorite: true,
-      maxNotificationsPerDay: 8,
-      notificationsToday: 2
-    },
-    {
-      id: 3,
-      name: "Maison Louis",
-      address: "Rue Saint-Jacques, 75005 Paris",
-      available: true,
-      price: "5.99",
-      quantity: 2,
-      pickupTime: "19:00 - 20:00",
-      lastCheck: "12:00",
-      rating: 4.7,
-      category: "Pâtisserie",
-      favorite: true,
-      maxNotificationsPerDay: 3,
-      notificationsToday: 1
-    },
-    {
-      id: 4,
-      name: "Le Rostand",
-      address: "6 Place Edmond Rostand, 75006 Paris",
-      available: true,
-      price: "4.50",
-      quantity: 1,
-      pickupTime: "18:30 - 19:30",
-      lastCheck: "12:00",
-      rating: 4.5,
-      category: "Café",
-      favorite: false,
-      maxNotificationsPerDay: 4,
-      notificationsToday: 0
-    }
-  ]);
+  const categories = ["Tous", "Restaurant", "Boulangerie", "Pâtisserie", "Chocolaterie", "Café", "Crêperie", "Glacier", "Épicerie", "Salon de thé"];
 
-  const [checkTimes, setCheckTimes] = useState(["09:00", "12:00", "15:00", "18:00"]);
-  const [checkConfig, setCheckConfig] = useState({
-    frequency: 30, // minutes
-    weekdayStart: "08:00",
-    weekdayEnd: "19:00", 
-    weekendStart: "11:00",
-    weekendEnd: "21:00",
-    maxNotificationsPerHour: 3,
-    enabled: true
-  });
-  const [notificationConfig, setNotificationConfig] = useState({
-    emails: ["", ""],
-    emailsEnabled: [false, false],
-    smsPhones: ["", ""],
-    smsEnabled: [false, false],
-    whatsappPhones: ["", ""],
-    whatsappEnabled: [false, false]
-  });
-  const [showAddStore, setShowAddStore] = useState(false);
+  // États
+  const [stores, setStores] = useState([
+    { id: 1, name: "Kayser - Assas", address: "87 rue d'Assas, 75006 Paris", category: "Boulangerie", available: true, price: "3.50", quantity: 3, pickupTime: "18:00 - 18:30", lastCheck: "12:30", rating: "4.5", favorite: true, maxNotificationsPerDay: 5, notificationsToday: 2 },
+    { id: 2, name: "Maison Louis", address: "Rue Saint-Jacques, 75005 Paris", category: "Pâtisserie", available: false, price: "4.00", quantity: 0, pickupTime: "17:30 - 18:00", lastCheck: "12:30", rating: "4.8", favorite: false, maxNotificationsPerDay: 3, notificationsToday: 1 }
+  ]);
+  
   const [showSettings, setShowSettings] = useState(false);
-  const [editingTime, setEditingTime] = useState(null);
-  const [newTime, setNewTime] = useState("");
-  const [addTimeMode, setAddTimeMode] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [showAddStore, setShowAddStore] = useState(false);
+  const [newStore, setNewStore] = useState({ name: "", address: "", category: "Restaurant" });
+  const [editingNotificationLimit, setEditingNotificationLimit] = useState(null);
+  const [showProximityCheck, setShowProximityCheck] = useState(false);
+  const [proximityResults, setProximityResults] = useState([]);
+  const [checkingOption, setCheckingOption] = useState('selected'); // 'selected' ou 'proximity'
+  const [showInstantCheckModal, setShowInstantCheckModal] = useState(false);
+  const [instantCheckResults, setInstantCheckResults] = useState([]);
+  
+  const [notificationConfig, setNotificationConfig] = useState({
+    emails: ["exemple@email.com", ""],
+    emailsEnabled: [true, false],
+    smsPhones: ["+33 6 12 34 56 78", ""],
+    smsEnabled: [true, false],
+    whatsappPhones: ["", ""],
+    whatsappEnabled: [false, false],
+    pushEnabled: true
+  });
+  
+  const [notifications, setNotifications] = useState([
+    { id: 1, time: "11:45", stores: ["Kayser - Assas"], message: "1 magasin disponible", methods: "📧 Email, 📱 SMS" },
+    { id: 2, time: "09:30", stores: ["La Maison du Chocolat", "Maison Louis"], message: "2 magasins disponibles", methods: "📧 Email" }
+  ]);
+  
+  const [checkConfig, setCheckConfig] = useState({
+    enabled: true,
+    frequency: 10,
+    weekdayStart: "08:00",
+    weekdayEnd: "20:00",
+    weekendStart: "09:00",
+    weekendEnd: "19:00",
+    maxNotificationsPerHour: 5
+  });
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredStores, setFilteredStores] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filterCategory, setFilterCategory] = useState("Tous");
-  const [isMobile, setIsMobile] = useState(false);
-  const [showProximityCheck, setShowProximityCheck] = useState(false);
-  const [proximityResults, setProximityResults] = useState([]);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-
-  const [newStore, setNewStore] = useState({
-    name: "",
-    address: "",
-    category: "Restaurant"
-  });
-
-  const categories = ["Tous", "Chocolaterie", "Boulangerie", "Pâtisserie", "Restaurant", "Café", "Crêperie", "Glacier"];
+  const [showNearbyStores, setShowNearbyStores] = useState(false);
 
   // Détection mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
   useEffect(() => {
-    const checkMobile = () => {
+    const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // PWA Install prompt
+  // Favoris
+  const favoriteStores = stores.filter(store => store.favorite);
+
+  // PWA Installation
   useEffect(() => {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isStandalone = window.navigator.standalone;
-    
-    if (isIOS && !isStandalone) {
-      setShowInstallPrompt(true);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
     }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setShowInstallPrompt(true);
+    });
   }, []);
 
-  // Styles CSS optimisés mobile
+  const installPWA = () => {
+    setShowInstallPrompt(false);
+  };
+
+  // Styles
   const styles = {
     container: {
+      fontFamily: 'system-ui, -apple-system, sans-serif',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 50%, #f3e8ff 100%)',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      background: 'linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%)'
     },
     header: {
-      background: 'linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
+      background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
       color: 'white',
-      padding: isMobile ? '1rem' : '2rem'
-    },
-    headerContent: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      flexWrap: 'wrap',
-      gap: '1rem'
-    },
-    headerLeft: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: isMobile ? '0.5rem' : '1rem'
-    },
-    headerIcon: {
-      background: 'rgba(255,255,255,0.2)',
-      padding: isMobile ? '0.5rem' : '0.75rem',
-      borderRadius: '0.75rem',
-      backdropFilter: 'blur(10px)'
-    },
-    headerTitle: {
-      fontSize: isMobile ? '1.25rem' : '2rem',
-      fontWeight: 'bold',
-      margin: 0
-    },
-    headerSubtitle: {
-      margin: '0.25rem 0 0 0',
-      opacity: 0.9,
-      fontSize: isMobile ? '0.875rem' : '1rem'
-    },
-    headerButtons: {
-      display: 'flex',
-      gap: '0.5rem',
-      flexWrap: 'wrap'
-    },
-    btn: {
-      padding: isMobile ? '0.5rem 1rem' : '0.75rem 1.5rem',
-      border: 'none',
-      borderRadius: '0.75rem',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      fontWeight: '600',
-      transition: 'all 0.3s ease',
-      fontSize: isMobile ? '0.75rem' : '0.875rem'
-    },
-    btnPrimary: {
-      background: 'rgba(255,255,255,0.2)',
-      color: 'white',
-      backdropFilter: 'blur(10px)'
-    },
-    btnSuccess: {
-      background: '#10b981',
-      color: 'white'
+      padding: isMobile ? '1rem' : '1.5rem 2rem',
+      borderRadius: '0 0 1rem 1rem',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
     },
     content: {
-      maxWidth: '1200px',
-      margin: '0 auto',
       padding: isMobile ? '1rem' : '2rem',
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
-      gap: isMobile ? '1rem' : '2rem'
+      maxWidth: '1200px',
+      margin: '0 auto'
     },
     card: {
       background: 'white',
       borderRadius: '1rem',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-      border: '1px solid #f1f5f9',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+      marginBottom: '2rem',
       overflow: 'hidden'
     },
     cardHeader: {
-      background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
-      color: 'white',
-      padding: isMobile ? '1rem' : '1.5rem'
-    },
-    cardContent: {
-      padding: isMobile ? '1rem' : '1.5rem'
-    },
-    storeCard: {
-      background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-      border: '2px solid #e2e8f0',
-      borderRadius: '0.75rem',
       padding: isMobile ? '1rem' : '1.5rem',
-      marginBottom: '1rem',
-      transition: 'all 0.3s ease'
+      borderBottom: '1px solid #e5e7eb'
     },
-    favoriteCard: {
-      background: 'linear-gradient(135deg, #fef2f2 0%, #fce7f3 100%)',
-      border: '2px solid #fca5a5'
+    storeItem: {
+      padding: isMobile ? '1rem' : '1.5rem',
+      borderBottom: '1px solid #f3f4f6',
+      transition: 'all 0.3s ease',
+      position: 'relative'
     },
-    storeHeader: {
-      display: 'flex',
-      alignItems: 'flex-start',
-      justifyContent: 'space-between',
-      marginBottom: '1rem',
-      flexDirection: isMobile ? 'column' : 'row'
-    },
-    storeInfo: {
-      flex: 1,
-      width: '100%'
-    },
-    storeName: {
-      display: 'flex',
+    availableBadge: {
+      background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+      color: 'white',
+      padding: '0.25rem 0.75rem',
+      borderRadius: '9999px',
+      fontSize: '0.75rem',
+      fontWeight: '600',
+      display: 'inline-flex',
       alignItems: 'center',
-      gap: '0.5rem',
-      marginBottom: '0.5rem',
-      flexWrap: 'wrap'
+      gap: '0.25rem'
     },
-    storeTitle: {
-      fontSize: isMobile ? '1rem' : '1.25rem',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      margin: 0
-    },
-    badge: {
+    unavailableBadge: {
+      background: '#e5e7eb',
+      color: '#6b7280',
       padding: '0.25rem 0.75rem',
       borderRadius: '9999px',
       fontSize: '0.75rem',
       fontWeight: '600'
     },
-    badgeAvailable: {
-      background: '#d1fae5',
-      color: '#065f46'
-    },
-    badgeUnavailable: {
-      background: '#fee2e2',
-      color: '#991b1b'
-    },
-    badgeCategory: {
-      background: '#f3f4f6',
-      color: '#6b7280'
-    },
-    storeAddress: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      color: '#6b7280',
-      marginBottom: '1rem',
-      fontSize: isMobile ? '0.875rem' : '1rem'
-    },
-    storeDetails: {
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)',
-      gap: '0.5rem'
-    },
-    detailBox: {
-      padding: '0.5rem',
-      borderRadius: '0.5rem',
-      textAlign: 'center'
-    },
-    detailBoxBlue: {
-      background: '#eff6ff',
-      color: '#1e40af'
-    },
-    detailBoxPurple: {
-      background: '#f5f3ff',
-      color: '#7c2d12'
-    },
-    detailBoxOrange: {
-      background: '#fff7ed',
-      color: '#ea580c'
-    },
-    detailBoxGreen: {
-      background: '#f0fdf4',
-      color: '#166534'
-    },
-    storeActions: {
-      display: 'flex',
-      flexDirection: isMobile ? 'row' : 'column',
-      gap: '0.5rem',
-      marginLeft: isMobile ? 0 : '1rem',
-      marginTop: isMobile ? '1rem' : 0,
-      justifyContent: isMobile ? 'center' : 'flex-start'
-    },
-    actionBtn: {
-      padding: '0.5rem',
-      border: 'none',
-      borderRadius: '0.5rem',
-      cursor: 'pointer',
-      background: 'transparent',
-      transition: 'all 0.3s ease'
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      fontSize: '0.875rem',
-      outline: 'none'
-    },
-    select: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      fontSize: '0.875rem',
-      outline: 'none',
-      background: 'white'
-    },
-    settingsPanel: {
-      background: 'white',
-      borderRadius: '1rem',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-      padding: isMobile ? '1rem' : '2rem',
-      marginBottom: isMobile ? '1rem' : '2rem'
-    },
-    notificationBox: {
-      background: 'linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%)',
-      border: '1px solid #bfdbfe',
-      borderRadius: '0.75rem',
-      padding: isMobile ? '1rem' : '1.5rem',
-      marginBottom: '1rem'
-    },
-    contactRow: {
-      display: 'flex',
-      gap: '0.5rem',
-      alignItems: 'center',
-      marginBottom: '0.5rem'
-    },
-    contactInput: {
-      flex: 1,
-      padding: '0.5rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      fontSize: '0.875rem'
-    },
-    removeBtn: {
-      padding: '0.5rem',
-      background: '#fee2e2',
-      color: '#dc2626',
-      border: 'none',
-      borderRadius: '0.5rem',
-      cursor: 'pointer'
-    },
-    enableBtn: {
+    btn: {
       padding: '0.5rem 1rem',
       border: 'none',
       borderRadius: '0.5rem',
       cursor: 'pointer',
-      fontSize: '0.75rem',
-      fontWeight: '600'
+      transition: 'all 0.2s ease',
+      fontWeight: '500',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.25rem'
+    },
+    btnPrimary: {
+      background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+      color: 'white'
+    },
+    settingsPanel: {
+      position: 'fixed',
+      inset: 0,
+      background: 'rgba(0,0,0,0.5)',
+      zIndex: 1000,
+      display: showSettings || showProximityCheck || showInstantCheckModal ? 'flex' : 'none',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: isMobile ? '1rem' : '2rem'
+    },
+    settingsContent: {
+      background: 'white',
+      borderRadius: '1rem',
+      padding: isMobile ? '1.5rem' : '2rem',
+      maxWidth: '900px',
+      width: '100%',
+      maxHeight: '90vh',
+      overflowY: 'auto',
+      boxShadow: '0 20px 50px rgba(0,0,0,0.2)'
+    },
+    input: {
+      width: '100%',
+      padding: '0.75rem',
+      border: '2px solid #e5e7eb',
+      borderRadius: '0.5rem',
+      fontSize: '1rem',
+      transition: 'border-color 0.2s'
+    },
+    select: {
+      width: '100%',
+      padding: '0.75rem',
+      border: '2px solid #e5e7eb',
+      borderRadius: '0.5rem',
+      fontSize: '1rem',
+      background: 'white'
+    },
+    notificationBox: {
+      padding: '1rem',
+      borderRadius: '0.75rem',
+      marginBottom: '1rem'
     },
     suggestions: {
       position: 'absolute',
@@ -452,18 +260,43 @@ const TooGoodToGoMonitor = () => {
       left: 0,
       right: 0,
       background: 'white',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+      border: '2px solid #e5e7eb',
+      borderTop: 'none',
+      borderRadius: '0 0 0.5rem 0.5rem',
+      maxHeight: '200px',
+      overflowY: 'auto',
       zIndex: 10,
-      maxHeight: '15rem',
-      overflowY: 'auto'
+      boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
     },
     suggestionItem: {
       padding: '0.75rem',
-      borderBottom: '1px solid #f3f4f6',
       cursor: 'pointer',
-      transition: 'background 0.2s'
+      transition: 'background 0.2s',
+      borderBottom: '1px solid #f3f4f6'
+    },
+    detailBox: {
+      flex: 1,
+      padding: '0.75rem',
+      background: '#f9fafb',
+      borderRadius: '0.5rem',
+      textAlign: 'center'
+    },
+    detailBoxGreen: {
+      background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+      color: '#047857'
+    },
+    notificationHistory: {
+      background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+      padding: '1rem',
+      borderRadius: '0.75rem',
+      marginBottom: '1.5rem'
+    },
+    notification: {
+      background: 'white',
+      padding: '0.75rem',
+      borderRadius: '0.5rem',
+      marginBottom: '0.5rem',
+      border: '1px solid #f59e0b'
     },
     sectionTitle: {
       fontSize: isMobile ? '1rem' : '1.125rem',
@@ -509,6 +342,13 @@ const TooGoodToGoMonitor = () => {
     }
   }, [searchTerm, filterCategory]);
 
+  // Afficher automatiquement les magasins proches quand on ouvre l'ajout
+  useEffect(() => {
+    if (showAddStore) {
+      setShowNearbyStores(true);
+    }
+  }, [showAddStore]);
+
   const selectStore = (store) => {
     setNewStore({
       name: store.name,
@@ -540,6 +380,7 @@ const TooGoodToGoMonitor = () => {
       setNewStore({ name: "", address: "", category: "Restaurant" });
       setSearchTerm("");
       setShowAddStore(false);
+      setShowNearbyStores(false);
     }
   };
 
@@ -583,6 +424,114 @@ const TooGoodToGoMonitor = () => {
     setNotificationConfig({...notificationConfig, whatsappPhones: newPhones});
   };
 
+  const toggleEmailEnabled = (index) => {
+    const newEnabled = [...notificationConfig.emailsEnabled];
+    newEnabled[index] = !newEnabled[index];
+    setNotificationConfig({...notificationConfig, emailsEnabled: newEnabled});
+  };
+
+  const toggleSmsEnabled = (index) => {
+    const newEnabled = [...notificationConfig.smsEnabled];
+    newEnabled[index] = !newEnabled[index];
+    setNotificationConfig({...notificationConfig, smsEnabled: newEnabled});
+  };
+
+  const toggleWhatsappEnabled = (index) => {
+    const newEnabled = [...notificationConfig.whatsappEnabled];
+    newEnabled[index] = !newEnabled[index];
+    setNotificationConfig({...notificationConfig, whatsappEnabled: newEnabled});
+  };
+
+  const getCategoryEmoji = (category) => {
+    const emojis = {
+      "Chocolaterie": "🍫",
+      "Boulangerie": "🥖",
+      "Pâtisserie": "🧁",
+      "Restaurant": "🍽️",
+      "Café": "☕",
+      "Crêperie": "🥞",
+      "Glacier": "🍦",
+      "Épicerie": "🛒",
+      "Salon de thé": "🫖"
+    };
+    return emojis[category] || "🏪";
+  };
+
+  const isWeekend = () => {
+    const day = new Date().getDay();
+    return day === 0 || day === 6; // Dimanche = 0, Samedi = 6
+  };
+
+  const isInCheckingHours = () => {
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes(); // en minutes depuis minuit
+    
+    const startTime = isWeekend() ? checkConfig.weekendStart : checkConfig.weekdayStart;
+    const endTime = isWeekend() ? checkConfig.weekendEnd : checkConfig.weekdayEnd;
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const startMinutesTotal = startHours * 60 + startMinutes;
+    const endMinutesTotal = endHours * 60 + endMinutes;
+    
+    return currentTime >= startMinutesTotal && currentTime <= endMinutesTotal;
+  };
+
+  const getNotificationCount = () => {
+    const emailCount = notificationConfig.emailsEnabled.filter(e => e).length;
+    const smsCount = notificationConfig.smsEnabled.filter(s => s).length;
+    const whatsappCount = notificationConfig.whatsappEnabled.filter(w => w).length;
+    return emailCount + smsCount + whatsappCount;
+  };
+
+  // Fonction pour vérifier instantanément les disponibilités
+  const instantCheck = () => {
+    const currentTime = new Date().toLocaleTimeString('fr-FR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+
+    let results = [];
+
+    if (checkingOption === 'selected') {
+      // Vérifier uniquement les magasins sélectionnés
+      results = stores.map(store => ({
+        ...store,
+        available: Math.random() > 0.3,
+        quantity: Math.floor(Math.random() * 5) + 1,
+        price: (Math.random() * 10 + 2).toFixed(2),
+        lastCheck: currentTime
+      }));
+    } else {
+      // Vérifier tous les magasins proches
+      const proximityStores = popularStores.filter(store => store.distance);
+      const sortedStores = proximityStores.sort((a, b) => {
+        const distanceA = parseInt(a.distance.replace('m', ''));
+        const distanceB = parseInt(b.distance.replace('m', ''));
+        return distanceA - distanceB;
+      });
+
+      results = sortedStores.map(store => ({
+        ...store,
+        available: Math.random() > 0.4,
+        price: (Math.random() * 8 + 3).toFixed(2),
+        quantity: Math.floor(Math.random() * 4) + 1,
+        pickupTime: "18:00 - 19:30",
+        lastCheck: currentTime,
+        rating: (Math.random() * 2 + 3).toFixed(1)
+      }));
+    }
+
+    setInstantCheckResults(results);
+    setShowInstantCheckModal(true);
+
+    // Mettre à jour les magasins surveillés si c'était une vérification des magasins sélectionnés
+    if (checkingOption === 'selected') {
+      setStores(results);
+    }
+  };
+
   const checkProximityStores = () => {
     // Filtrer les magasins proches du 88 bd Saint-Michel
     const proximityStores = popularStores.filter(store => store.distance);
@@ -606,24 +555,6 @@ const TooGoodToGoMonitor = () => {
 
     setProximityResults(results);
     setShowProximityCheck(true);
-  };
-
-  const toggleEmailEnabled = (index) => {
-    const newEnabled = [...notificationConfig.emailsEnabled];
-    newEnabled[index] = !newEnabled[index];
-    setNotificationConfig({...notificationConfig, emailsEnabled: newEnabled});
-  };
-
-  const toggleSmsEnabled = (index) => {
-    const newEnabled = [...notificationConfig.smsEnabled];
-    newEnabled[index] = !newEnabled[index];
-    setNotificationConfig({...notificationConfig, smsEnabled: newEnabled});
-  };
-
-  const toggleWhatsappEnabled = (index) => {
-    const newEnabled = [...notificationConfig.whatsappEnabled];
-    newEnabled[index] = !newEnabled[index];
-    setNotificationConfig({...notificationConfig, whatsappEnabled: newEnabled});
   };
 
   const simulateCheck = () => {
@@ -698,249 +629,101 @@ const TooGoodToGoMonitor = () => {
     }
   };
 
-  const getNotificationCount = () => {
-    const emailCount = notificationConfig.emailsEnabled.filter(e => e).length;
-    const smsCount = notificationConfig.smsEnabled.filter(s => s).length;
-    const whatsappCount = notificationConfig.whatsappEnabled.filter(w => w).length;
-    return emailCount + smsCount + whatsappCount;
+  // Fonction pour obtenir les magasins proches triés par distance
+  const getNearbyStores = () => {
+    const nearbyStores = popularStores.filter(store => store.distance);
+    return nearbyStores.sort((a, b) => {
+      const distanceA = parseInt(a.distance.replace('m', ''));
+      const distanceB = parseInt(b.distance.replace('m', ''));
+      return distanceA - distanceB;
+    });
   };
-
-  const getCategoryEmoji = (category) => {
-    const emojis = {
-      "Chocolaterie": "🍫",
-      "Boulangerie": "🥖",
-      "Pâtisserie": "🧁",
-      "Restaurant": "🍽️",
-      "Café": "☕",
-      "Crêperie": "🥞",
-      "Glacier": "🍦"
-    };
-    return emojis[category] || "🏪";
-  };
-
-  const isWeekend = () => {
-    const day = new Date().getDay();
-    return day === 0 || day === 6; // Dimanche = 0, Samedi = 6
-  };
-
-  const isInCheckingHours = () => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes(); // en minutes depuis minuit
-    
-    const startTime = isWeekend() ? checkConfig.weekendStart : checkConfig.weekdayStart;
-    const endTime = isWeekend() ? checkConfig.weekendEnd : checkConfig.weekdayEnd;
-    
-    const [startHour, startMin] = startTime.split(':').map(Number);
-    const [endHour, endMin] = endTime.split(':').map(Number);
-    
-    const startMinutes = startHour * 60 + startMin;
-    const endMinutes = endHour * 60 + endMin;
-    
-    return currentTime >= startMinutes && currentTime <= endMinutes;
-  };
-
-  const getNextCheckTime = () => {
-    if (!checkConfig.enabled) return "Désactivé";
-    
-    const now = new Date();
-    const nextCheck = new Date(now.getTime() + checkConfig.frequency * 60000);
-    
-    return nextCheck.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const favoriteStores = stores.filter(store => store.favorite);
-  const regularStores = stores.filter(store => !store.favorite);
 
   return (
     <div style={styles.container}>
-      {/* PWA Install Prompt pour iPhone */}
-      <div style={styles.installPrompt}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Download size={20} />
-          <strong>Installer l'app sur votre iPhone</strong>
-        </div>
-        <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem' }}>
-          Appuyez sur <strong>⬆️ Partager</strong> puis <strong>"Sur l'écran d'accueil"</strong>
-        </p>
-        <button 
-          onClick={() => setShowInstallPrompt(false)}
-          style={{ 
-            background: 'rgba(255,255,255,0.2)', 
-            border: 'none', 
-            color: 'white', 
-            padding: '0.5rem 1rem', 
-            borderRadius: '0.5rem',
-            cursor: 'pointer'
-          }}
-        >
-          Compris
-        </button>
-      </div>
-
       {/* Header */}
       <div style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.headerLeft}>
-            <div style={styles.headerIcon}>
-              <Bell size={isMobile ? 24 : 32} />
-            </div>
-            <div>
-              <h1 style={styles.headerTitle}>
-                {isMobile ? "TooGoodToGo" : "Surveillance Too Good To Go"}
-              </h1>
-              <p style={styles.headerSubtitle}>
-                Ne ratez plus jamais une bonne affaire ! 🍫✨
-              </p>
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 'bold', margin: 0 }}>
+              🥖 Too Good To Go Monitor
+            </h1>
+            <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: isMobile ? '0.875rem' : '1rem' }}>
+              Surveillance automatique • {getNotificationCount()} alertes actives
+            </p>
           </div>
-          <div style={styles.headerButtons}>
-            <button
-              style={{...styles.btn, ...styles.btnPrimary}}
-              onClick={() => setShowSettings(!showSettings)}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button 
+              style={{...styles.btn, background: 'rgba(255,255,255,0.2)', color: 'white'}}
+              onClick={simulateCheck}
+            >
+              <Bell size={16} />
+              {!isMobile && "Tester"}
+            </button>
+            <button 
+              style={{...styles.btn, background: 'rgba(255,255,255,0.2)', color: 'white'}}
+              onClick={checkProximityStores}
+            >
+              <MapPin size={16} />
+              {!isMobile && "Proximité"}
+            </button>
+            <button 
+              style={{...styles.btn, background: 'rgba(255,255,255,0.2)', color: 'white'}}
+              onClick={() => setShowSettings(true)}
             >
               <Settings size={16} />
               {!isMobile && "Paramètres"}
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Notification d'installation PWA */}
+      <div style={styles.installPrompt}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <strong style={{ fontSize: '1.125rem' }}>📱 Installer l'application</strong>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
+              Ajoutez Too Good To Go Monitor à votre écran d'accueil
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
-              style={{...styles.btn, ...styles.btnSuccess}}
-              onClick={simulateCheck}
+              onClick={installPWA}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'white',
+                color: '#6366f1',
+                border: 'none',
+                borderRadius: '0.5rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
             >
-              <TrendingUp size={16} />
-              {isMobile ? "Vérifier" : "Vérifier maintenant"}
+              <Download size={16} style={{ display: 'inline', marginRight: '0.25rem' }} />
+              Installer
+            </button>
+            <button
+              onClick={() => setShowInstallPrompt(false)}
+              style={{
+                padding: '0.5rem',
+                background: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={16} />
             </button>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '1rem' : '2rem' }}>
-        {/* Settings Panel */}
-        {showSettings && (
-          <div style={styles.settingsPanel}>
-            <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: '#1f2937' }}>
-              ⚙️ Paramètres
-            </h2>
-            
-            <div style={{ marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
-                🔔 Méthodes de notification
-              </h3>
-              
-              {/* Configuration Email (2 adresses) */}
-              <div style={styles.notificationBox}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <Mail size={20} style={{ color: '#2563eb' }} />
-                  <span style={{ fontWeight: '600', fontSize: '1rem' }}>📧 Notifications Email</span>
-                </div>
-                
-                {[0, 1].map(index => (
-                  <div key={index} style={{ marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                        Email {index + 1}:
-                      </span>
-                      <button
-                        onClick={() => toggleEmailEnabled(index)}
-                        style={{
-                          ...styles.enableBtn,
-                          background: notificationConfig.emailsEnabled[index] ? '#10b981' : '#d1d5db',
-                          color: notificationConfig.emailsEnabled[index] ? 'white' : '#6b7280'
-                        }}
-                      >
-                        {notificationConfig.emailsEnabled[index] ? '✅' : '❌'}
-                      </button>
-                    </div>
-                    <input
-                      type="email"
-                      placeholder={`email${index + 1}@exemple.com`}
-                      value={notificationConfig.emails[index]}
-                      onChange={(e) => updateEmailConfig(index, e.target.value)}
-                      style={styles.input}
-                      disabled={!notificationConfig.emailsEnabled[index]}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Configuration SMS (2 numéros) */}
-              <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', border: '1px solid #bbf7d0'}}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <Smartphone size={20} style={{ color: '#059669' }} />
-                  <span style={{ fontWeight: '600', fontSize: '1rem' }}>📱 Notifications SMS</span>
-                </div>
-                
-                {[0, 1].map(index => (
-                  <div key={index} style={{ marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                        Téléphone SMS {index + 1}:
-                      </span>
-                      <button
-                        onClick={() => toggleSmsEnabled(index)}
-                        style={{
-                          ...styles.enableBtn,
-                          background: notificationConfig.smsEnabled[index] ? '#10b981' : '#d1d5db',
-                          color: notificationConfig.smsEnabled[index] ? 'white' : '#6b7280'
-                        }}
-                      >
-                        {notificationConfig.smsEnabled[index] ? '✅' : '❌'}
-                      </button>
-                    </div>
-                    <input
-                      type="tel"
-                      placeholder={`+33 6 ${index === 0 ? '12 34 56 78' : '87 65 43 21'}`}
-                      value={notificationConfig.smsPhones[index]}
-                      onChange={(e) => updateSmsPhoneConfig(index, e.target.value)}
-                      style={styles.input}
-                      disabled={!notificationConfig.smsEnabled[index]}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Configuration WhatsApp (2 numéros indépendants) */}
-              <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)', border: '1px solid #5eead4'}}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <MessageCircle size={20} style={{ color: '#0d9488' }} />
-                  <span style={{ fontWeight: '600', fontSize: '1rem' }}>💬 Notifications WhatsApp</span>
-                </div>
-                
-                {[0, 1].map(index => (
-                  <div key={index} style={{ marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-                        Téléphone WhatsApp {index + 1}:
-                      </span>
-                      <button
-                        onClick={() => toggleWhatsappEnabled(index)}
-                        style={{
-                          ...styles.enableBtn,
-                          background: notificationConfig.whatsappEnabled[index] ? '#10b981' : '#d1d5db',
-                          color: notificationConfig.whatsappEnabled[index] ? 'white' : '#6b7280'
-                        }}
-                      >
-                        {notificationConfig.whatsappEnabled[index] ? '✅' : '❌'}
-                      </button>
-                      {notificationConfig.smsPhones[index] && (
-                        <button
-                          onClick={() => copyFromSmsToWhatsapp(index)}
-                          style={{
-                            padding: '0.25rem 0.5rem',
-                            background: '#e0e7ff',
-                            color: '#3730a3',
-                            border: 'none',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.65rem',
-                            cursor: 'pointer'
-                          }}
-                          title="Copier depuis SMS"
-                        >
-                          📋 SMS
-                        </button>
-                      )}
-
-        {/* Résultats vérification proximité */}
-        {showProximityCheck && (
-          <div style={styles.settingsPanel}>
+      {/* Résultats vérification proximité */}
+      {showProximityCheck && (
+        <div style={styles.settingsPanel}>
+          <div style={styles.settingsContent}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
                 📍 Magasins proches - Vérification instantanée
@@ -964,7 +747,7 @@ const TooGoodToGoMonitor = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                 <MapPin size={20} style={{ color: '#059669' }} />
                 <span style={{ fontWeight: '600', fontSize: '1rem' }}>
-                  🎯 Rayon 600m depuis 88 bd Saint-Michel
+                  🎯 Rayon 1.2km depuis 88 bd Saint-Michel
                 </span>
               </div>
               <p style={{ fontSize: '0.875rem', color: '#047857', margin: 0 }}>
@@ -973,102 +756,89 @@ const TooGoodToGoMonitor = () => {
               </p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
               {proximityResults.map((store, index) => (
                 <div key={index} style={{
-                  ...styles.storeCard,
-                  ...(store.available ? styles.favoriteCard : {}),
-                  border: store.available ? '2px solid #10b981' : '2px solid #d1d5db'
+                  ...styles.storeItem,
+                  background: store.available ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : '#f9fafb'
                 }}>
-                  <div style={styles.storeHeader}>
-                    <div style={styles.storeInfo}>
-                      <div style={styles.storeName}>
-                        <span style={{ fontSize: '1.5rem' }}>{getCategoryEmoji(store.category)}</span>
-                        <h3 style={{...styles.storeTitle, color: store.available ? '#059669' : '#6b7280'}}>
-                          #{index + 1} {store.name}
-                        </h3>
-                        <span style={{ 
-                          ...styles.badge, 
-                          background: '#dcfce7', 
-                          color: '#166534',
-                          fontWeight: 'bold'
-                        }}>
-                          📍 {store.distance}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontWeight: '600', fontSize: '1.125rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {getCategoryEmoji(store.category)} {store.name}
+                        <span style={{ fontSize: '0.75rem', background: '#e0e7ff', color: '#3730a3', padding: '0.125rem 0.5rem', borderRadius: '9999px' }}>
+                          {store.distance}
                         </span>
-                        <span style={{
-                          ...styles.badge,
-                          ...(store.available ? styles.badgeAvailable : styles.badgeUnavailable)
-                        }}>
-                          {store.available ? '✅ DISPONIBLE' : '❌ Rupture'}
+                      </h3>
+                      <p style={{ margin: '0.25rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+                        <MapPin size={14} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                        {store.address}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {store.available ? (
+                        <span style={styles.availableBadge}>
+                          ✓ Disponible • {store.quantity} part(s)
                         </span>
-                      </div>
-                      <div style={styles.storeAddress}>
-                        <MapPin size={16} style={{ color: '#3b82f6' }} />
-                        <span>{store.address}</span>
-                      </div>
-                      {store.available && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', marginTop: '1rem' }}>
-                          <div style={{...styles.detailBox, ...styles.detailBoxBlue}}>
-                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>💰 Prix:</div>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
-                              <Euro size={16} />
-                              <span style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>{store.price}</span>
-                            </div>
-                          </div>
-                          <div style={{...styles.detailBox, ...styles.detailBoxPurple}}>
-                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>📦 Quantité:</div>
-                            <div style={{ fontWeight: 'bold', fontSize: '1.125rem', marginTop: '0.25rem' }}>{store.quantity}</div>
-                          </div>
-                          <div style={{...styles.detailBox, ...styles.detailBoxOrange}}>
-                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🕐 Retrait:</div>
-                            <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '0.875rem' }}>{store.pickupTime}</div>
-                          </div>
-                          <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
-                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🔄 Vérif:</div>
-                            <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '1rem' }}>{store.lastCheck}</div>
-                          </div>
-                        </div>
+                      ) : (
+                        <span style={styles.unavailableBadge}>Épuisé</span>
                       )}
                     </div>
-                    {store.available && (
-                      <div style={{ marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <button
-                          style={{
-                            padding: '0.75rem 1.5rem',
-                            background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.75rem',
-                            cursor: 'pointer',
-                            fontWeight: '600',
-                            fontSize: '0.875rem'
-                          }}
-                          onClick={() => {
-                            // Simuler l'ajout aux magasins surveillés
-                            const newStore = {
-                              id: Date.now(),
-                              name: store.name,
-                              address: store.address,
-                              category: store.category,
-                              available: store.available,
-                              price: store.price,
-                              quantity: store.quantity,
-                              pickupTime: store.pickupTime,
-                              lastCheck: store.lastCheck,
-                              rating: (Math.random() * 2 + 3).toFixed(1),
-                              favorite: false,
-                              maxNotificationsPerDay: 5,
-                              notificationsToday: 0
-                            };
-                            setStores(prev => [...prev, newStore]);
-                            alert(`✅ ${store.name} ajouté à vos magasins surveillés !`);
-                          }}
-                        >
-                          ➕ Surveiller
-                        </button>
-                      </div>
-                    )}
                   </div>
+
+                  {store.available && (
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>💰 Prix:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1.125rem', color: '#059669' }}>{store.price}€</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>⭐ Note:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{store.rating}/5</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: '120px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>🕐 Retrait:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>{store.pickupTime}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                        {!stores.find(s => s.name === store.name) && (
+                          <button
+                            style={{
+                              padding: '0.5rem 1rem',
+                              background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '0.5rem',
+                              cursor: 'pointer',
+                              fontWeight: '600',
+                              fontSize: '0.875rem'
+                            }}
+                            onClick={() => {
+                              const newStore = {
+                                id: Date.now(),
+                                name: store.name,
+                                address: store.address,
+                                category: store.category,
+                                available: store.available,
+                                price: store.price,
+                                quantity: store.quantity,
+                                pickupTime: store.pickupTime,
+                                lastCheck: store.lastCheck,
+                                rating: store.rating || (Math.random() * 2 + 3).toFixed(1),
+                                favorite: false,
+                                maxNotificationsPerDay: 5,
+                                notificationsToday: 0
+                              };
+                              setStores(prev => [...prev, newStore]);
+                              alert(`✅ ${store.name} ajouté à vos magasins surveillés !`);
+                            }}
+                          >
+                            ➕ Surveiller
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1080,219 +850,109 @@ const TooGoodToGoMonitor = () => {
               </p>
             </div>
           </div>
-        )}
-                    </div>
-                    <input
-                      type="tel"
-                      placeholder={`+33 6 ${index === 0 ? '11 22 33 44' : '99 88 77 66'}`}
-                      value={notificationConfig.whatsappPhones[index]}
-                      onChange={(e) => updateWhatsappPhoneConfig(index, e.target.value)}
-                      style={styles.input}
-                      disabled={!notificationConfig.whatsappEnabled[index]}
-                    />
-                  </div>
-                ))}
-                <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                  💡 <strong>Indépendant des SMS :</strong> Vous pouvez utiliser des numéros différents ou copier depuis SMS
-                </p>
-              </div>
+        </div>
+      )}
 
-              {/* Configuration des vérifications */}
-              <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
-                  ⏰ Paramètres de vérification
-                </h3>
-                
-                <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '1px solid #f59e0b'}}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <Clock size={20} style={{ color: '#d97706' }} />
-                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>🔄 Fréquence de vérification</span>
-                    <button
-                      onClick={() => setCheckConfig({...checkConfig, enabled: !checkConfig.enabled})}
-                      style={{
-                        marginLeft: 'auto',
-                        padding: '0.5rem 1rem',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        background: checkConfig.enabled ? '#10b981' : '#d1d5db',
-                        color: checkConfig.enabled ? 'white' : '#6b7280',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {checkConfig.enabled ? '✅ Activé' : '❌ Désactivé'}
-                    </button>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                    <div>
-                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
-                        📊 Vérifier toutes les :
-                      </label>
-                      <select
-                        value={checkConfig.frequency}
-                        onChange={(e) => setCheckConfig({...checkConfig, frequency: parseInt(e.target.value)})}
-                        style={styles.select}
-                        disabled={!checkConfig.enabled}
-                      >
-                        <option value={5}>5 minutes ⚡</option>
-                        <option value={15}>15 minutes 🔥</option>
-                        <option value={30}>30 minutes ⭐</option>
-                        <option value={60}>60 minutes 🕐</option>
-                        <option value={120}>120 minutes 😴</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
-                        🔔 Max notifications/heure :
-                      </label>
-                      <select
-                        value={checkConfig.maxNotificationsPerHour}
-                        onChange={(e) => setCheckConfig({...checkConfig, maxNotificationsPerHour: parseInt(e.target.value)})}
-                        style={styles.select}
-                        disabled={!checkConfig.enabled}
-                      >
-                        <option value={1}>1 notification/h 🤫</option>
-                        <option value={2}>2 notifications/h 😌</option>
-                        <option value={3}>3 notifications/h ⭐</option>
-                        <option value={5}>5 notifications/h 🔥</option>
-                        <option value={10}>10 notifications/h ⚡</option>
-                      </select>
-                    </div>
-                  </div>
+      {/* Modal de vérification instantanée */}
+      {showInstantCheckModal && (
+        <div style={styles.settingsPanel}>
+          <div style={styles.settingsContent}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
+                🔄 Vérification instantanée
+              </h2>
+              <button
+                onClick={() => setShowInstantCheckModal(false)}
+                style={{
+                  padding: '0.5rem',
+                  background: '#fee2e2',
+                  color: '#dc2626',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #a7f3d0', marginBottom: '1rem'}}>
+              <p style={{ fontSize: '0.875rem', color: '#047857', margin: 0 }}>
+                <strong>{instantCheckResults.length} magasins</strong> vérifiés.
+                <strong> {instantCheckResults.filter(s => s.available).length} disponible(s)</strong> maintenant !
+              </p>
+            </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
-                        📅 Semaine (Lun-Ven) :
-                      </label>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <input
-                          type="time"
-                          value={checkConfig.weekdayStart}
-                          onChange={(e) => setCheckConfig({...checkConfig, weekdayStart: e.target.value})}
-                          style={{...styles.input, flex: 1}}
-                          disabled={!checkConfig.enabled}
-                        />
-                        <span style={{ color: '#6b7280' }}>à</span>
-                        <input
-                          type="time"
-                          value={checkConfig.weekdayEnd}
-                          onChange={(e) => setCheckConfig({...checkConfig, weekdayEnd: e.target.value})}
-                          style={{...styles.input, flex: 1}}
-                          disabled={!checkConfig.enabled}
-                        />
-                      </div>
+            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              {instantCheckResults.map((store, index) => (
+                <div key={index} style={{
+                  ...styles.storeItem,
+                  background: store.available ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : '#f9fafb'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontWeight: '600', fontSize: '1.125rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {getCategoryEmoji(store.category)} {store.name}
+                        {store.distance && (
+                          <span style={{ fontSize: '0.75rem', background: '#e0e7ff', color: '#3730a3', padding: '0.125rem 0.5rem', borderRadius: '9999px' }}>
+                            {store.distance}
+                          </span>
+                        )}
+                      </h3>
+                      <p style={{ margin: '0.25rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+                        <MapPin size={14} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                        {store.address}
+                      </p>
                     </div>
-                    
-                    <div>
-                      <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
-                        🎉 Week-end (Sam-Dim) :
-                      </label>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <input
-                          type="time"
-                          value={checkConfig.weekendStart}
-                          onChange={(e) => setCheckConfig({...checkConfig, weekendStart: e.target.value})}
-                          style={{...styles.input, flex: 1}}
-                          disabled={!checkConfig.enabled}
-                        />
-                        <span style={{ color: '#6b7280' }}>à</span>
-                        <input
-                          type="time"
-                          value={checkConfig.weekendEnd}
-                          onChange={(e) => setCheckConfig({...checkConfig, weekendEnd: e.target.value})}
-                          style={{...styles.input, flex: 1}}
-                          disabled={!checkConfig.enabled}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#92400e', margin: 0, lineHeight: '1.4' }}>
-                      💡 <strong>Configuration actuelle :</strong> Vérification toutes les {checkConfig.frequency} minutes, 
-                      {new Date().getDay() === 0 || new Date().getDay() === 6 ? ` de ${checkConfig.weekendStart} à ${checkConfig.weekendEnd} (week-end)` : ` de ${checkConfig.weekdayStart} à ${checkConfig.weekdayEnd} (semaine)`}, 
-                      maximum {checkConfig.maxNotificationsPerHour} notifications par heure.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Zone de proximité */}
-              <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
-                  📍 Magasins proches du 88 bd Saint-Michel
-                </h3>
-                
-                <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #a7f3d0'}}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                    <MapPin size={20} style={{ color: '#059669' }} />
-                    <span style={{ fontWeight: '600', fontSize: '1rem' }}>🎯 Rayon 600 mètres</span>
-                  </div>
-                  
-                  <div style={{ marginBottom: '1rem' }}>
-                    <p style={{ fontSize: '0.875rem', color: '#047857', margin: '0 0 0.5rem 0' }}>
-                      <strong>{popularStores.filter(s => s.distance).length} magasins</strong> trouvés dans votre quartier :
-                    </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      {popularStores.filter(s => s.distance).slice(0, 8).map((store, index) => (
-                        <span key={index} style={{ 
-                          fontSize: '0.75rem', 
-                          background: '#dcfce7', 
-                          color: '#166534', 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '9999px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem'
-                        }}>
-                          {getCategoryEmoji(store.category)} {store.name.split(' - ')[0]} 
-                          <span style={{ color: '#10b981', fontWeight: '600' }}>({store.distance})</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {store.available ? (
+                        <span style={styles.availableBadge}>
+                          ✓ Disponible • {store.quantity} part(s)
                         </span>
-                      ))}
-                      {popularStores.filter(s => s.distance).length > 8 && (
-                        <span style={{ 
-                          fontSize: '0.75rem', 
-                          background: '#f3f4f6', 
-                          color: '#6b7280', 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '9999px'
-                        }}>
-                          +{popularStores.filter(s => s.distance).length - 8} autres...
-                        </span>
+                      ) : (
+                        <span style={styles.unavailableBadge}>Épuisé</span>
                       )}
                     </div>
                   </div>
 
-                  <div style={{ padding: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#047857', margin: 0, lineHeight: '1.4' }}>
-                      💡 <strong>Astuce :</strong> Ces magasins sont tous à moins de 10 minutes à pied ! 
-                      Ajoutez-les avec des limites de notifications adaptées à vos habitudes.
-                    </p>
-                  </div>
+                  {store.available && (
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>💰 Prix:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1.125rem', color: '#059669' }}>{store.price}€</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>⭐ Note:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{store.rating}/5</div>
+                      </div>
+                      <div style={{ flex: 1, minWidth: '120px' }}>
+                        <div style={{ fontWeight: '500', fontSize: '0.75rem', color: '#6b7280' }}>🕐 Retrait:</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.875rem' }}>{store.pickupTime}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <div style={styles.content}>
-          {/* Stores List */}
-          <div>
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div>
-                    <h2 style={{ fontSize: isMobile ? '1.125rem' : '1.25rem', fontWeight: 'bold', margin: 0 }}>
-                      🏪 Magasins surveillés
-                    </h2>
-                    <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                      {stores.length} magasin(s) • {favoriteStores.length} favoris ⭐
-                    </p>
-                  </div>
+      <div style={styles.content}>
+        {/* Stores List */}
+        <div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h2 style={{ fontSize: isMobile ? '1.125rem' : '1.25rem', fontWeight: 'bold', margin: 0 }}>
+                    🏪 Magasins surveillés
+                  </h2>
+                  <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                    {stores.length} magasin(s) • {favoriteStores.length} favoris ⭐
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button
                     style={{...styles.btn, ...styles.btnPrimary}}
                     onClick={() => setShowAddStore(!showAddStore)}
@@ -1300,466 +960,657 @@ const TooGoodToGoMonitor = () => {
                     <Plus size={16} />
                     {!isMobile && "Ajouter"}
                   </button>
+                  <button
+                    style={{...styles.btn, background: '#10b981', color: 'white'}}
+                    onClick={() => {
+                      setCheckingOption('selected');
+                      instantCheck();
+                    }}
+                    title="Vérifier instantanément les magasins surveillés"
+                  >
+                    <RefreshCw size={16} />
+                    {!isMobile && "Vérif. instant."}
+                  </button>
                 </div>
               </div>
+            </div>
 
-              {showAddStore && (
-                <div style={{ padding: isMobile ? '1rem' : '1.5rem', borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)' }}>
-                  <h3 style={{ fontWeight: '600', marginBottom: '1rem', color: '#1f2937', fontSize: isMobile ? '1rem' : '1.125rem' }}>
-                    ✨ Ajouter un nouveau magasin
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1rem' }}>
-                    <select
-                      value={filterCategory}
-                      onChange={(e) => setFilterCategory(e.target.value)}
-                      style={styles.select}
-                    >
-                      {categories.map(cat => (
-                        <option key={cat} value={cat}>{getCategoryEmoji(cat)} {cat}</option>
-                      ))}
-                    </select>
-                    
-                    <div style={{ position: 'relative' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <Search size={16} style={{ color: '#6b7280' }} />
-                        <label style={{ fontWeight: '500', color: '#374151', fontSize: isMobile ? '0.875rem' : '1rem' }}>Rechercher un magasin</label>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Tapez le nom d'un magasin parisien..."
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setSearchTerm(e.target.value);
-                          setNewStore({...newStore, name: e.target.value});
-                        }}
-                        style={styles.input}
-                      />
-                      
-                      {showSuggestions && filteredStores.length > 0 && (
-                        <div style={styles.suggestions}>
-                          {filteredStores.slice(0, isMobile ? 5 : 10).map((store, index) => (
-                            <div
-                              key={index}
-                              onClick={() => selectStore(store)}
-                              style={{
-                                ...styles.suggestionItem,
-                                ':hover': { background: '#f3f4f6' }
-                              }}
-                              onMouseEnter={(e) => e.target.style.background = '#f3f4f6'}
-                              onMouseLeave={(e) => e.target.style.background = 'white'}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <span style={{ fontSize: '1rem' }}>{getCategoryEmoji(store.category)}</span>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontWeight: '500', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem' }}>
-                                    <span style={{ truncate: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{store.name}</span>
-                                    {store.favorite && <Heart size={12} style={{ color: '#ef4444', flexShrink: 0 }} />}
-                                  </div>
-                                  <div style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                                    {store.address}
-                                    {store.distance && <span style={{ color: '#10b981', fontWeight: '600', marginLeft: '0.5rem' }}>📍 {store.distance}</span>}
-                                  </div>
-                                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.25rem' }}>
-                                    <span style={{ fontSize: '0.65rem', background: '#f3f4f6', color: '#6b7280', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
-                                      {store.category}
-                                    </span>
-                                    {store.distance && (
-                                      <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
-                                        Proche
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
+            {showAddStore && (
+              <div style={{ padding: isMobile ? '1rem' : '1.5rem', borderBottom: '1px solid #e5e7eb', background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)' }}>
+                <h3 style={{ fontWeight: '600', marginBottom: '1rem', color: '#1f2937', fontSize: isMobile ? '1rem' : '1.125rem' }}>
+                  ✨ Ajouter un nouveau magasin
+                </h3>
+
+                {/* Affichage des magasins proches */}
+                {showNearbyStores && (
+                  <div style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.8)', borderRadius: '0.75rem', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                    <h4 style={{ fontWeight: '600', marginBottom: '0.75rem', color: '#4f46e5', fontSize: '0.875rem' }}>
+                      📍 Magasins proches du 88 bd Saint-Michel (triés par distance)
+                    </h4>
+                    <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      {getNearbyStores().slice(0, 10).map((store, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            padding: '0.5rem',
+                            marginBottom: '0.5rem',
+                            background: '#f9fafb',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            border: '1px solid #e5e7eb',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                          onClick={() => selectStore(store)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#f3f4f6';
+                            e.currentTarget.style.borderColor = '#6366f1';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#f9fafb';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>
+                              {getCategoryEmoji(store.category)} {store.name}
                             </div>
-                          ))}
+                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.125rem' }}>
+                              {store.address}
+                            </div>
+                          </div>
+                          <span style={{
+                            fontSize: '0.75rem',
+                            background: '#dcfce7',
+                            color: '#166534',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '9999px',
+                            fontWeight: '600'
+                          }}>
+                            {store.distance}
+                          </span>
                         </div>
-                      )}
+                      ))}
                     </div>
-                    
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem', margin: 0 }}>
+                      💡 Cliquez sur un magasin pour le sélectionner automatiquement
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1rem' }}>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    style={styles.select}
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{getCategoryEmoji(cat)} {cat}</option>
+                    ))}
+                  </select>
+                  
+                  <div style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <Search size={16} style={{ color: '#6b7280' }} />
+                      <label style={{ fontWeight: '500', color: '#374151', fontSize: isMobile ? '0.875rem' : '1rem' }}>Rechercher un magasin</label>
+                    </div>
                     <input
                       type="text"
-                      placeholder="Adresse du magasin"
-                      value={newStore.address}
-                      onChange={(e) => setNewStore({...newStore, address: e.target.value})}
+                      placeholder="Tapez le nom d'un magasin parisien..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setNewStore({...newStore, name: e.target.value});
+                      }}
                       style={styles.input}
                     />
                     
-                    <select
-                      value={newStore.category}
-                      onChange={(e) => setNewStore({...newStore, category: e.target.value})}
-                      style={styles.select}
+                    {showSuggestions && filteredStores.length > 0 && (
+                      <div style={styles.suggestions}>
+                        {filteredStores.slice(0, isMobile ? 5 : 10).map((store, index) => (
+                          <div
+                            key={index}
+                            style={styles.suggestionItem}
+                            onClick={() => selectStore(store)}
+                            onMouseEnter={(e) => e.target.style.background = '#f3f4f6'}
+                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <div style={{ fontWeight: '500' }}>
+                                  {getCategoryEmoji(store.category)} {store.name}
+                                </div>
+                                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.125rem' }}>
+                                  {store.address}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                                <div style={{ textAlign: 'right' }}>
+                                  <span style={{ fontSize: '0.65rem', background: '#f3f4f6', color: '#6b7280', padding: '0.125rem 0.375rem', borderRadius: '9999px' }}>
+                                    {store.category}
+                                  </span>
+                                  {store.distance && (
+                                    <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#166534', padding: '0.125rem 0.375rem', borderRadius: '9999px', marginLeft: '0.25rem' }}>
+                                      {store.distance}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <input
+                    type="text"
+                    placeholder="Adresse du magasin"
+                    value={newStore.address}
+                    onChange={(e) => setNewStore({...newStore, address: e.target.value})}
+                    style={styles.input}
+                  />
+                  
+                  <select
+                    value={newStore.category}
+                    onChange={(e) => setNewStore({...newStore, category: e.target.value})}
+                    style={styles.select}
+                  >
+                    {categories.slice(1).map(cat => (
+                      <option key={cat} value={cat}>{getCategoryEmoji(cat)} {cat}</option>
+                    ))}
+                  </select>
+                  
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={addStore}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.75rem',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        flex: isMobile ? '1' : 'none'
+                      }}
                     >
-                      {categories.slice(1).map(cat => (
-                        <option key={cat} value={cat}>{getCategoryEmoji(cat)} {cat}</option>
-                      ))}
-                    </select>
-                    
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      ✅ Ajouter
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddStore(false);
+                        setSearchTerm("");
+                        setNewStore({name: "", address: "", category: "Restaurant"});
+                        setShowNearbyStores(false);
+                      }}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: '#e5e7eb',
+                        color: '#374151',
+                        border: 'none',
+                        borderRadius: '0.75rem',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        flex: isMobile ? '1' : 'none'
+                      }}
+                    >
+                      ❌ Annuler
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des magasins surveillés */}
+            {stores.map(store => (
+              <div key={store.id} style={{
+                ...styles.storeItem,
+                background: store.available ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' : store.favorite ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' : 'white'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <h3 style={{ fontWeight: '600', fontSize: isMobile ? '1rem' : '1.125rem', margin: 0 }}>
+                        {getCategoryEmoji(store.category)} {store.name}
+                      </h3>
                       <button
-                        onClick={addStore}
+                        onClick={() => toggleFavorite(store.id)}
                         style={{
-                          padding: '0.75rem 1.5rem',
-                          background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: store.favorite ? '#f59e0b' : '#d1d5db',
+                          fontSize: '1.25rem',
+                          padding: 0
+                        }}
+                      >
+                        {store.favorite ? '⭐' : '☆'}
+                      </button>
+                    </div>
+                    <p style={{ margin: '0.25rem 0', color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
+                      <MapPin size={14} style={{ display: 'inline', marginRight: '0.25rem' }} />
+                      {store.address}
+                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                        ⭐ {store.rating}/5
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                        • Dernière vérif: {store.lastCheck}
+                      </span>
+                      {store.available && (
+                        <span style={styles.availableBadge}>
+                          ✓ Disponible • {store.quantity} part(s)
+                        </span>
+                      )}
+                      {!store.available && (
+                        <span style={styles.unavailableBadge}>Épuisé</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <button
+                      onClick={() => setEditingNotificationLimit(store.id)}
+                      style={{
+                        padding: '0.5rem',
+                        background: '#e0e7ff',
+                        color: '#4338ca',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      🔔 {store.notificationsToday}/{store.maxNotificationsPerDay}
+                    </button>
+                    <button
+                      onClick={() => removeStore(store.id)}
+                      style={{
+                        padding: '0.5rem',
+                        background: '#fee2e2',
+                        color: '#dc2626',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {editingNotificationLimit === store.id && (
+                  <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '0.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.875rem' }}>
+                      Limite de notifications par jour:
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input
+                        type="number"
+                        value={store.maxNotificationsPerDay}
+                        onChange={(e) => updateStoreNotificationLimit(store.id, parseInt(e.target.value) || 0)}
+                        style={{ ...styles.input, width: '80px' }}
+                        min="0"
+                        max="20"
+                      />
+                      <button
+                        onClick={() => setEditingNotificationLimit(null)}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          background: '#10b981',
                           color: 'white',
                           border: 'none',
-                          borderRadius: '0.75rem',
+                          borderRadius: '0.5rem',
                           cursor: 'pointer',
-                          fontWeight: '600',
-                          flex: isMobile ? '1' : 'none'
+                          fontWeight: '500'
                         }}
                       >
-                        ✅ Ajouter
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowAddStore(false);
-                          setSearchTerm("");
-                          setNewStore({name: "", address: "", category: "Restaurant"});
-                        }}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          background: '#e5e7eb',
-                          color: '#374151',
-                          border: 'none',
-                          borderRadius: '0.75rem',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          flex: isMobile ? '1' : 'none'
-                        }}
-                      >
-                        ❌ Annuler
+                        ✓ OK
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
-
-              <div style={styles.cardContent}>
-                {/* Favoris */}
-                {favoriteStores.length > 0 && (
-                  <div style={{ marginBottom: isMobile ? '1.5rem' : '2rem' }}>
-                    <h3 style={styles.sectionTitle}>
-                      <Heart style={{ color: '#ef4444' }} size={20} />
-                      ⭐ Mes Favoris
-                    </h3>
-                    {favoriteStores.map((store) => (
-                      <div key={store.id} style={{...styles.storeCard, ...styles.favoriteCard}}>
-                        <div style={styles.storeHeader}>
-                          <div style={styles.storeInfo}>
-                            <div style={styles.storeName}>
-                              <span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }}>{getCategoryEmoji(store.category)}</span>
-                              <h3 style={styles.storeTitle}>{store.name}</h3>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <Star size={14} style={{ color: '#fbbf24' }} />
-                                <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280' }}>{store.rating}</span>
-                              </div>
-                              <span style={{...styles.badge, ...styles.badgeCategory, fontSize: '0.65rem'}}>{store.category}</span>
-                              <span style={{
-                                ...styles.badge,
-                                fontSize: '0.65rem',
-                                ...(store.available ? styles.badgeAvailable : styles.badgeUnavailable)
-                              }}>
-                                {store.available ? '✅ Dispo' : '❌ Rupture'}
-                              </span>
-                            </div>
-                            <div style={styles.storeAddress}>
-                              <MapPin size={14} style={{ color: '#3b82f6' }} />
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
-                                {store.address}
-                              </span>
-                            </div>
-                            <div style={styles.storeDetails}>
-                              <div style={{...styles.detailBox, ...styles.detailBoxBlue}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>💰 Prix:</div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
-                                  <Euro size={14} />
-                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem' }}>{store.price}</span>
-                                </div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxPurple}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>📦 Quantité:</div>
-                                <div style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', marginTop: '0.25rem' }}>{store.quantity}</div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxOrange}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🕐 Retrait:</div>
-                                <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>{store.pickupTime}</div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔄 Dernière:</div>
-                                <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.875rem' : '1rem' }}>{store.lastCheck}</div>
-                              </div>
-                              <div style={{...styles.detailBox, background: '#fef3c7', color: '#92400e'}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔔 Notifs/jour:</div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
-                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '0.875rem' : '1rem' }}>
-                                    {store.notificationsToday}/{store.maxNotificationsPerDay}
-                                  </span>
-                                </div>
-                              </div>
-                              <div style={{...styles.detailBox, background: '#e0e7ff', color: '#3730a3'}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.65rem' : '0.75rem' }}>🎯 Limite:</div>
-                                <select
-                                  value={store.maxNotificationsPerDay}
-                                  onChange={(e) => updateStoreNotificationLimit(store.id, parseInt(e.target.value))}
-                                  style={{
-                                    marginTop: '0.25rem',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    fontSize: isMobile ? '0.75rem' : '0.875rem',
-                                    fontWeight: 'bold',
-                                    color: '#3730a3',
-                                    cursor: 'pointer',
-                                    width: '100%'
-                                  }}
-                                >
-                                  <option value={1}>1/jour</option>
-                                  <option value={2}>2/jour</option>
-                                  <option value={3}>3/jour</option>
-                                  <option value={5}>5/jour</option>
-                                  <option value={8}>8/jour</option>
-                                  <option value={10}>10/jour</option>
-                                  <option value={15}>15/jour</option>
-                                  <option value={20}>20/jour</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                          <div style={styles.storeActions}>
-                            <button
-                              onClick={() => toggleFavorite(store.id)}
-                              style={{...styles.actionBtn, color: '#ef4444'}}
-                            >
-                              <Heart size={18} style={{ fill: '#ef4444' }} />
-                            </button>
-                            <button
-                              onClick={() => removeStore(store.id)}
-                              style={{...styles.actionBtn, color: '#ef4444'}}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 )}
 
-                {/* Autres magasins */}
-                {regularStores.length > 0 && (
-                  <div>
-                    <h3 style={styles.sectionTitle}>
-                      🏪 Autres magasins
-                    </h3>
-                    {regularStores.map((store) => (
-                      <div key={store.id} style={styles.storeCard}>
-                        <div style={styles.storeHeader}>
-                          <div style={styles.storeInfo}>
-                            <div style={styles.storeName}>
-                              <span style={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }}>{getCategoryEmoji(store.category)}</span>
-                              <h3 style={styles.storeTitle}>{store.name}</h3>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <Star size={14} style={{ color: '#fbbf24' }} />
-                                <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280' }}>{store.rating}</span>
-                              </div>
-                              <span style={{...styles.badge, ...styles.badgeCategory, fontSize: '0.65rem'}}>{store.category}</span>
-                              <span style={{
-                                ...styles.badge,
-                                fontSize: '0.65rem',
-                                ...(store.available ? styles.badgeAvailable : styles.badgeUnavailable)
-                              }}>
-                                {store.available ? '✅ Dispo' : '❌ Rupture'}
-                              </span>
-                            </div>
-                            <div style={styles.storeAddress}>
-                              <MapPin size={14} style={{ color: '#3b82f6' }} />
-                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
-                                {store.address}
-                              </span>
-                            </div>
-                            <div style={styles.storeDetails}>
-                              <div style={{...styles.detailBox, ...styles.detailBoxBlue}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>💰 Prix:</div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
-                                  <Euro size={14} />
-                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem' }}>{store.price}</span>
-                                </div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxPurple}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>📦 Quantité:</div>
-                                <div style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', marginTop: '0.25rem' }}>{store.quantity}</div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxOrange}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🕐 Retrait:</div>
-                                <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>{store.pickupTime}</div>
-                              </div>
-                              <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔄 Dernière:</div>
-                                <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: isMobile ? '0.875rem' : '1rem' }}>{store.lastCheck}</div>
-                              </div>
-                              <div style={{...styles.detailBox, background: '#fef3c7', color: '#92400e'}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>🔔 Notifs/jour:</div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
-                                  <span style={{ fontWeight: 'bold', fontSize: isMobile ? '0.875rem' : '1rem' }}>
-                                    {store.notificationsToday}/{store.maxNotificationsPerDay}
-                                  </span>
-                                </div>
-                              </div>
-                              <div style={{...styles.detailBox, background: '#e0e7ff', color: '#3730a3'}}>
-                                <div style={{ fontWeight: '500', fontSize: isMobile ? '0.65rem' : '0.75rem' }}>🎯 Limite:</div>
-                                <select
-                                  value={store.maxNotificationsPerDay}
-                                  onChange={(e) => updateStoreNotificationLimit(store.id, parseInt(e.target.value))}
-                                  style={{
-                                    marginTop: '0.25rem',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    fontSize: isMobile ? '0.75rem' : '0.875rem',
-                                    fontWeight: 'bold',
-                                    color: '#3730a3',
-                                    cursor: 'pointer',
-                                    width: '100%'
-                                  }}
-                                >
-                                  <option value={1}>1/jour</option>
-                                  <option value={2}>2/jour</option>
-                                  <option value={3}>3/jour</option>
-                                  <option value={5}>5/jour</option>
-                                  <option value={8}>8/jour</option>
-                                  <option value={10}>10/jour</option>
-                                  <option value={15}>15/jour</option>
-                                  <option value={20}>20/jour</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                          <div style={styles.storeActions}>
-                            <button
-                              onClick={() => toggleFavorite(store.id)}
-                              style={{...styles.actionBtn, color: '#9ca3af'}}
-                            >
-                              <Heart size={18} />
-                            </button>
-                            <button
-                              onClick={() => removeStore(store.id)}
-                              style={{...styles.actionBtn, color: '#ef4444'}}
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                {store.available && (
+                  <div style={{ marginTop: '1rem', display: 'flex', gap: isMobile ? '0.5rem' : '1rem', flexWrap: 'wrap' }}>
+                    <div style={{...styles.detailBox, background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', color: '#dc2626'}}>
+                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>💰 Prix:</div>
+                      <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '1.25rem' }}>{store.price}€</div>
+                    </div>
+                    <div style={{ flex: 1, padding: '0.75rem', background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', borderRadius: '0.5rem', textAlign: 'center' }}>
+                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🕐 Retrait:</div>
+                      <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '0.875rem' }}>{store.pickupTime}</div>
+                    </div>
+                    <div style={{...styles.detailBox, ...styles.detailBoxGreen}}>
+                      <div style={{ fontWeight: '500', fontSize: '0.875rem' }}>🔄 Vérif:</div>
+                      <div style={{ fontWeight: 'bold', marginTop: '0.25rem', fontSize: '1rem' }}>{store.lastCheck}</div>
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
+            ))}
           </div>
 
-          {/* Sidebar */}
-          <div style={{ order: isMobile ? -1 : 0 }}>
-            {/* Notifications Panel */}
-            <div style={styles.card}>
-              <div style={{ background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', color: 'white', padding: isMobile ? '1rem' : '1.5rem' }}>
-                <h2 style={{ fontSize: isMobile ? '1.125rem' : '1.25rem', fontWeight: 'bold', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Bell size={18} />
-                  🔔 Notifications
-                </h2>
-              </div>
-              <div style={styles.cardContent}>
-                {notifications.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: isMobile ? '1.5rem 0' : '2rem 0' }}>
-                    <Bell size={isMobile ? 36 : 48} style={{ color: '#d1d5db', marginBottom: '0.75rem' }} />
-                    <p style={{ color: '#6b7280', margin: '0 0 0.25rem 0', fontSize: isMobile ? '0.875rem' : '1rem' }}>Aucune notification</p>
-                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', margin: 0 }}>Activez dans paramètres</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {notifications.map((notif) => (
-                      <div key={notif.id} style={{
-                        background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-                        border: '1px solid #a7f3d0',
-                        borderRadius: '0.75rem',
-                        padding: isMobile ? '0.75rem' : '1rem'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#065f46', fontWeight: '600', fontSize: isMobile ? '0.875rem' : '1rem' }}>
-                          <Bell size={14} />
-                          <span>{notif.time}</span>
-                        </div>
-                        <p style={{ color: '#047857', fontWeight: '500', margin: '0.25rem 0', fontSize: isMobile ? '0.875rem' : '1rem' }}>{notif.message}</p>
-                        <p style={{ color: '#059669', fontSize: '0.75rem', margin: '0.25rem 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {notif.stores.join(', ')}
-                        </p>
-                        <p style={{ fontSize: '0.65rem', color: '#10b981', margin: '0.5rem 0 0 0' }}>📩 {notif.methods}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          {/* Bouton de vérification instantanée pour tous les magasins proches */}
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <button
+              style={{
+                padding: '1rem 2rem',
+                background: 'linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '1rem',
+                boxShadow: '0 4px 20px rgba(99, 102, 241, 0.3)'
+              }}
+              onClick={() => {
+                setCheckingOption('proximity');
+                instantCheck();
+              }}
+            >
+              <RefreshCw size={20} style={{ display: 'inline', marginRight: '0.5rem' }} />
+              Vérifier tous les magasins proches instantanément
+            </button>
+            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.5rem' }}>
+              Vérification immédiate de tous les magasins dans un rayon de 1.2km
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div style={styles.settingsPanel}>
+          <div style={styles.settingsContent}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
+                ⚙️ Paramètres
+              </h2>
+              <button
+                onClick={() => setShowSettings(false)}
+                style={{
+                  padding: '0.5rem',
+                  background: '#fee2e2',
+                  color: '#dc2626',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            {/* Status Panel */}
-            <div style={{...styles.card, marginTop: '1.5rem'}}>
-              <div style={{ background: 'linear-gradient(90deg, #3b82f6 0%, #6366f1 100%)', color: 'white', padding: isMobile ? '1rem' : '1.5rem' }}>
-                <h2 style={{ fontSize: isMobile ? '1.125rem' : '1.25rem', fontWeight: 'bold', margin: 0 }}>📊 État système</h2>
-              </div>
-              <div style={styles.cardContent}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '0.75rem' : '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🏪 Magasins:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#3b82f6' }}>{stores.length}</span>
+            {/* Historique des notifications */}
+            <div style={styles.notificationHistory}>
+              <h3 style={styles.sectionTitle}>
+                <TrendingUp size={20} />
+                📊 Historique des notifications
+              </h3>
+              {notifications.map(notif => (
+                <div key={notif.id} style={styles.notification}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: '600' }}>{notif.time}</span>
+                    <span style={{ fontSize: '0.75rem', color: '#92400e' }}>{notif.methods}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>⭐ Favoris:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#ef4444' }}>{favoriteStores.length}</span>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem' }}>
+                    {notif.message} • {notif.stores.join(", ")}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Configuration Email */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={styles.sectionTitle}>
+                <Mail size={20} />
+                📧 Notifications Email
+              </h3>
+              {[0, 1].map((index) => (
+                <div key={index} style={{ ...styles.notificationBox, background: 'linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%)', border: '1px solid #a5b4fc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <span style={{ fontWeight: '600' }}>Email {index + 1}:</span>
+                    <button
+                      onClick={() => toggleEmailEnabled(index)}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer',
+                        background: notificationConfig.emailsEnabled[index] ? '#10b981' : '#d1d5db',
+                        color: notificationConfig.emailsEnabled[index] ? 'white' : '#6b7280'
+                      }}
+                    >
+                      {notificationConfig.emailsEnabled[index] ? '✅' : '❌'}
+                    </button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>⏰ Fréquence:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#8b5cf6' }}>
-                      {checkConfig.enabled ? `${checkConfig.frequency}min` : 'OFF'}
-                    </span>
+                  <input
+                    type="email"
+                    placeholder={index === 0 ? "exemple@email.com" : "backup@email.com"}
+                    value={notificationConfig.emails[index]}
+                    onChange={(e) => updateEmailConfig(index, e.target.value)}
+                    style={styles.input}
+                    disabled={!notificationConfig.emailsEnabled[index]}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Configuration SMS */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={styles.sectionTitle}>
+                <Smartphone size={20} />
+                📱 Notifications SMS
+              </h3>
+              {[0, 1].map((index) => (
+                <div key={index} style={{ ...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #86efac' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <span style={{ fontWeight: '600' }}>Téléphone {index + 1}:</span>
+                    <button
+                      onClick={() => toggleSmsEnabled(index)}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer',
+                        background: notificationConfig.smsEnabled[index] ? '#10b981' : '#d1d5db',
+                        color: notificationConfig.smsEnabled[index] ? 'white' : '#6b7280'
+                      }}
+                    >
+                      {notificationConfig.smsEnabled[index] ? '✅' : '❌'}
+                    </button>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🎯 Statut:</span>
-                    <span style={{ 
-                      fontWeight: 'bold', 
-                      fontSize: isMobile ? '0.875rem' : '1rem', 
-                      color: checkConfig.enabled && isInCheckingHours() ? '#10b981' : '#ef4444',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem'
-                    }}>
-                      {checkConfig.enabled ? (isInCheckingHours() ? '✅ Actif' : '😴 Hors horaires') : '❌ Désactivé'}
-                    </span>
+                  <input
+                    type="tel"
+                    placeholder={`+33 6 ${index === 0 ? '12 34 56 78' : '98 76 54 32'}`}
+                    value={notificationConfig.smsPhones[index]}
+                    onChange={(e) => updateSmsPhoneConfig(index, e.target.value)}
+                    style={styles.input}
+                    disabled={!notificationConfig.smsEnabled[index]}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Configuration WhatsApp */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={styles.sectionTitle}>
+                <MessageCircle size={20} />
+                💬 Notifications WhatsApp
+              </h3>
+              {[0, 1].map((index) => (
+                <div key={index} style={{ ...styles.notificationBox, background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #86efac' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    <span style={{ fontWeight: '600' }}>WhatsApp {index + 1}:</span>
+                    <button
+                      onClick={() => toggleWhatsappEnabled(index)}
+                      style={{
+                        padding: '0.25rem 0.5rem',
+                        border: 'none',
+                        borderRadius: '0.25rem',
+                        cursor: 'pointer',
+                        background: notificationConfig.whatsappEnabled[index] ? '#10b981' : '#d1d5db',
+                        color: notificationConfig.whatsappEnabled[index] ? 'white' : '#6b7280'
+                      }}
+                    >
+                      {notificationConfig.whatsappEnabled[index] ? '✅' : '❌'}
+                    </button>
+                    {notificationConfig.smsPhones[index] && (
+                      <button
+                        onClick={() => copyFromSmsToWhatsapp(index)}
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          background: '#e0e7ff',
+                          color: '#3730a3',
+                          border: 'none',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.65rem',
+                          cursor: 'pointer'
+                        }}
+                        title="Copier depuis SMS"
+                      >
+                        📋 SMS
+                      </button>
+                    )}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🛡️ Limite notifs/h:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#f59e0b' }}>
-                      {checkConfig.maxNotificationsPerHour}
-                    </span>
+                  <input
+                    type="tel"
+                    placeholder={`+33 6 ${index === 0 ? '11 22 33 44' : '99 88 77 66'}`}
+                    value={notificationConfig.whatsappPhones[index]}
+                    onChange={(e) => updateWhatsappPhoneConfig(index, e.target.value)}
+                    style={styles.input}
+                    disabled={!notificationConfig.whatsappEnabled[index]}
+                  />
+                </div>
+              ))}
+              <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
+                💡 <strong>Indépendant des SMS :</strong> Vous pouvez utiliser des numéros différents ou copier depuis SMS
+              </p>
+            </div>
+
+            {/* Configuration des vérifications */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#374151' }}>
+                ⏰ Paramètres de vérification
+              </h3>
+              
+              <div style={{...styles.notificationBox, background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '1px solid #f59e0b'}}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <Clock size={20} style={{ color: '#d97706' }} />
+                  <span style={{ fontWeight: '600', fontSize: '1rem' }}>🔄 Fréquence de vérification</span>
+                  <button
+                    onClick={() => setCheckConfig({...checkConfig, enabled: !checkConfig.enabled})}
+                    style={{
+                      marginLeft: 'auto',
+                      padding: '0.5rem 1rem',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      cursor: 'pointer',
+                      background: checkConfig.enabled ? '#10b981' : '#d1d5db',
+                      color: checkConfig.enabled ? 'white' : '#6b7280',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}
+                  >
+                    {checkConfig.enabled ? '✅ Activé' : '❌ Désactivé'}
+                  </button>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.875rem' }}>
+                      Fréquence (minutes):
+                    </label>
+                    <input
+                      type="number"
+                      value={checkConfig.frequency}
+                      onChange={(e) => setCheckConfig({...checkConfig, frequency: parseInt(e.target.value) || 5})}
+                      style={styles.input}
+                      min="5"
+                      max="60"
+                      disabled={!checkConfig.enabled}
+                    />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>📱 Notifs actives:</span>
-                    <span style={{ 
-                      fontWeight: 'bold', 
-                      fontSize: isMobile ? '1rem' : '1.125rem', 
-                      color: getNotificationCount() > 0 ? '#10b981' : '#ef4444' 
-                    }}>
-                      {getNotificationCount()}/6
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
-                    <span style={{ color: '#6b7280', fontWeight: '500', fontSize: isMobile ? '0.875rem' : '1rem' }}>🔄 Prochaine:</span>
-                    <span style={{ fontWeight: 'bold', fontSize: isMobile ? '1rem' : '1.125rem', color: '#f59e0b' }}>
-                      {getNextCheckTime()}
-                    </span>
+                  
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.875rem' }}>
+                      Max notifications/heure:
+                    </label>
+                    <input
+                      type="number"
+                      value={checkConfig.maxNotificationsPerHour}
+                      onChange={(e) => setCheckConfig({...checkConfig, maxNotificationsPerHour: parseInt(e.target.value) || 5})}
+                      style={styles.input}
+                      min="1"
+                      max="20"
+                      disabled={!checkConfig.enabled}
+                    />
                   </div>
                 </div>
+                
+                <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.875rem' }}>
+                      🏢 Semaine (Lu-Ve):
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input
+                        type="time"
+                        value={checkConfig.weekdayStart}
+                        onChange={(e) => setCheckConfig({...checkConfig, weekdayStart: e.target.value})}
+                        style={{ ...styles.input, flex: 1 }}
+                        disabled={!checkConfig.enabled}
+                      />
+                      <span style={{ alignSelf: 'center' }}>→</span>
+                      <input
+                        type="time"
+                        value={checkConfig.weekdayEnd}
+                        onChange={(e) => setCheckConfig({...checkConfig, weekdayEnd: e.target.value})}
+                        style={{ ...styles.input, flex: 1 }}
+                        disabled={!checkConfig.enabled}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.875rem' }}>
+                      🏖️ Week-end (Sa-Di):
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input
+                        type="time"
+                        value={checkConfig.weekendStart}
+                        onChange={(e) => setCheckConfig({...checkConfig, weekendStart: e.target.value})}
+                        style={{ ...styles.input, flex: 1 }}
+                        disabled={!checkConfig.enabled}
+                      />
+                      <span style={{ alignSelf: 'center' }}>→</span>
+                      <input
+                        type="time"
+                        value={checkConfig.weekendEnd}
+                        onChange={(e) => setCheckConfig({...checkConfig, weekendEnd: e.target.value})}
+                        style={{ ...styles.input, flex: 1 }}
+                        disabled={!checkConfig.enabled}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <p style={{ fontSize: '0.75rem', color: '#92400e', marginTop: '0.75rem', margin: 0 }}>
+                  💡 La surveillance s'effectue automatiquement dans ces créneaux horaires
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
