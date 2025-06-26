@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Plus, Settings, Trash2, Edit3, Check, X, Clock, Mail, MapPin, Euro } from 'lucide-react';
+import { Bell, Plus, Settings, Trash2, Edit3, Check, X, Clock, Mail, MapPin, Euro, Smartphone, MessageCircle, Search, Star, TrendingUp } from 'lucide-react';
 
 const TooGoodToGoMonitor = () => {
+  // Liste des magasins populaires à Paris pour l'autocomplétion
+  const popularStores = [
+    { name: "La Maison du Chocolat", address: "225 Rue du Faubourg Saint-Honoré, 75008 Paris" },
+    { name: "Boulangerie Julien", address: "75 Rue Saint-Antoine, 75004 Paris" },
+    { name: "Breizh Café", address: "109 Rue Vieille du Temple, 75003 Paris" },
+    { name: "Du Pain et des Idées", address: "34 Rue Yves Toudic, 75010 Paris" },
+    { name: "Pierre Hermé", address: "72 Rue Bonaparte, 75006 Paris" },
+    { name: "L'As du Fallafel", address: "34 Rue des Rosiers, 75004 Paris" },
+    { name: "Berthillon", address: "31 Rue Saint-Louis en l'Île, 75004 Paris" },
+    { name: "Poilâne", address: "8 Rue du Cherche-Midi, 75006 Paris" },
+    { name: "Café de Flore", address: "172 Boulevard Saint-Germain, 75006 Paris" },
+    { name: "Ladurée Champs-Élysées", address: "75 Avenue des Champs-Élysées, 75008 Paris" },
+    { name: "Le Comptoir du Relais", address: "9 Carrefour de l'Odéon, 75006 Paris" },
+    { name: "Bistrot Paul Bert", address: "18 Rue Paul Bert, 75011 Paris" }
+  ];
+
   const [stores, setStores] = useState([
     {
       id: 1,
@@ -11,14 +27,18 @@ const TooGoodToGoMonitor = () => {
       price: "4.99",
       quantity: 3,
       pickupTime: "18:00 - 19:30",
-      lastCheck: "12:00"
+      lastCheck: "12:00",
+      rating: 4.8
     }
   ]);
 
   const [checkTimes, setCheckTimes] = useState(["09:00", "12:00", "15:00", "18:00"]);
-  const [emailConfig, setEmailConfig] = useState({
+  const [notificationConfig, setNotificationConfig] = useState({
     email: "",
-    enabled: false
+    emailEnabled: false,
+    phone: "",
+    smsEnabled: false,
+    whatsappEnabled: false
   });
   const [showAddStore, setShowAddStore] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -26,11 +46,35 @@ const TooGoodToGoMonitor = () => {
   const [newTime, setNewTime] = useState("");
   const [addTimeMode, setAddTimeMode] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredStores, setFilteredStores] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [newStore, setNewStore] = useState({
     name: "",
     address: ""
   });
+
+  // Filtrage des magasins pour l'autocomplétion
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      const filtered = popularStores.filter(store =>
+        store.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        store.address.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredStores(filtered);
+      setShowSuggestions(true);
+    } else {
+      setFilteredStores([]);
+      setShowSuggestions(false);
+    }
+  }, [searchTerm]);
+
+  const selectStore = (store) => {
+    setNewStore(store);
+    setSearchTerm(store.name);
+    setShowSuggestions(false);
+  };
 
   const addStore = () => {
     if (newStore.name && newStore.address) {
@@ -42,10 +86,12 @@ const TooGoodToGoMonitor = () => {
         price: (Math.random() * 10 + 2).toFixed(2),
         quantity: Math.floor(Math.random() * 5) + 1,
         pickupTime: "17:30 - 19:00",
-        lastCheck: "12:00"
+        lastCheck: "12:00",
+        rating: (Math.random() * 2 + 3).toFixed(1)
       };
       setStores([...stores, store]);
       setNewStore({ name: "", address: "" });
+      setSearchTerm("");
       setShowAddStore(false);
     }
   };
@@ -97,127 +143,195 @@ const TooGoodToGoMonitor = () => {
     
     // Simulation de notifications
     const availableStores = updatedStores.filter(store => store.available);
-    if (availableStores.length > 0 && emailConfig.enabled) {
+    if (availableStores.length > 0 && (notificationConfig.emailEnabled || notificationConfig.smsEnabled || notificationConfig.whatsappEnabled)) {
+      const methods = [];
+      if (notificationConfig.emailEnabled) methods.push("📧 Email");
+      if (notificationConfig.smsEnabled) methods.push("📱 SMS");
+      if (notificationConfig.whatsappEnabled) methods.push("💬 WhatsApp");
+      
       const newNotification = {
         id: Date.now(),
         time: currentTime,
         stores: availableStores.map(s => s.name),
-        message: `${availableStores.length} magasin(s) disponible(s)`
+        message: `${availableStores.length} magasin(s) disponible(s)`,
+        methods: methods.join(", ")
       };
       setNotifications(prev => [newNotification, ...prev.slice(0, 4)]);
     }
   };
 
+  const getNotificationCount = () => {
+    let count = 0;
+    if (notificationConfig.emailEnabled) count++;
+    if (notificationConfig.smsEnabled) count++;
+    if (notificationConfig.whatsappEnabled) count++;
+    return count;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header avec gradient */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
+        <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Bell className="text-green-600" />
-                Surveillance Too Good To Go
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Soyez notifié dès qu'il y a des disponibilités dans vos magasins préférés
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                <Bell className="text-white" size={32} />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">
+                  Surveillance Too Good To Go
+                </h1>
+                <p className="text-white/90 mt-1 text-lg">
+                  Ne ratez plus jamais une bonne affaire ! 🍫✨
+                </p>
+              </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                className="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 transition-all duration-300 flex items-center gap-2 shadow-lg"
               >
-                <Settings size={16} />
+                <Settings size={18} />
                 Paramètres
               </button>
               <button
                 onClick={simulateCheck}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all duration-300 shadow-lg transform hover:scale-105"
               >
+                <TrendingUp size={18} className="mr-2" />
                 Vérifier maintenant
               </button>
             </div>
           </div>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Settings Panel */}
         {showSettings && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Paramètres</h2>
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">⚙️ Paramètres</h2>
             
-            {/* Email Configuration */}
-            <div className="mb-6">
-              <h3 className="text-md font-medium mb-2 flex items-center gap-2">
-                <Mail size={16} />
-                Configuration Email
-              </h3>
-              <div className="flex gap-2 mb-2">
+            {/* Configuration des notifications */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4 text-gray-700">🔔 Méthodes de notification</h3>
+              
+              {/* Email */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Mail className="text-blue-600" size={20} />
+                  <span className="font-medium text-gray-800">Email</span>
+                  <button
+                    onClick={() => setNotificationConfig({...notificationConfig, emailEnabled: !notificationConfig.emailEnabled})}
+                    className={`ml-auto px-4 py-2 rounded-lg transition-all duration-300 ${
+                      notificationConfig.emailEnabled 
+                        ? 'bg-emerald-500 text-white shadow-lg' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {notificationConfig.emailEnabled ? '✅ Activé' : '❌ Désactivé'}
+                  </button>
+                </div>
                 <input
                   type="email"
                   placeholder="votre.email@exemple.com"
-                  value={emailConfig.email}
-                  onChange={(e) => setEmailConfig({...emailConfig, email: e.target.value})}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={notificationConfig.email}
+                  onChange={(e) => setNotificationConfig({...notificationConfig, email: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <button
-                  onClick={() => setEmailConfig({...emailConfig, enabled: !emailConfig.enabled})}
-                  className={`px-4 py-2 rounded-lg ${
-                    emailConfig.enabled 
-                      ? 'bg-green-600 text-white' 
-                      : 'bg-gray-300 text-gray-700'
-                  }`}
-                >
-                  {emailConfig.enabled ? 'Activé' : 'Désactivé'}
-                </button>
+              </div>
+
+              {/* SMS */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Smartphone className="text-green-600" size={20} />
+                  <span className="font-medium text-gray-800">SMS</span>
+                  <button
+                    onClick={() => setNotificationConfig({...notificationConfig, smsEnabled: !notificationConfig.smsEnabled})}
+                    className={`ml-auto px-4 py-2 rounded-lg transition-all duration-300 ${
+                      notificationConfig.smsEnabled 
+                        ? 'bg-emerald-500 text-white shadow-lg' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {notificationConfig.smsEnabled ? '✅ Activé' : '❌ Désactivé'}
+                  </button>
+                </div>
+                <input
+                  type="tel"
+                  placeholder="+33 6 12 34 56 78"
+                  value={notificationConfig.phone}
+                  onChange={(e) => setNotificationConfig({...notificationConfig, phone: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* WhatsApp */}
+              <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-xl p-6">
+                <div className="flex items-center gap-3">
+                  <MessageCircle className="text-green-600" size={20} />
+                  <span className="font-medium text-gray-800">WhatsApp</span>
+                  <span className="text-sm text-gray-500">(utilise le même numéro que SMS)</span>
+                  <button
+                    onClick={() => setNotificationConfig({...notificationConfig, whatsappEnabled: !notificationConfig.whatsappEnabled})}
+                    className={`ml-auto px-4 py-2 rounded-lg transition-all duration-300 ${
+                      notificationConfig.whatsappEnabled 
+                        ? 'bg-emerald-500 text-white shadow-lg' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
+                    {notificationConfig.whatsappEnabled ? '✅ Activé' : '❌ Désactivé'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Check Times Configuration */}
+            {/* Horaires de vérification */}
             <div>
-              <h3 className="text-md font-medium mb-2 flex items-center gap-2">
-                <Clock size={16} />
-                Horaires de vérification
+              <h3 className="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
+                <Clock size={20} className="text-purple-600" />
+                ⏰ Horaires de vérification
               </h3>
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div className="flex flex-wrap gap-3 mb-4">
                 {checkTimes.map((time, index) => (
-                  <div key={index} className="flex items-center bg-blue-50 rounded-lg px-3 py-2">
+                  <div key={index} className="flex items-center bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl px-4 py-3 shadow-sm">
                     {editingTime === time ? (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2">
                         <input
                           type="time"
                           defaultValue={time}
                           onChange={(e) => setNewTime(e.target.value)}
-                          className="text-sm border-none bg-transparent"
+                          className="text-sm border-none bg-transparent text-purple-700 font-medium"
                         />
                         <button
                           onClick={() => updateCheckTime(time, newTime)}
-                          className="text-green-600 hover:text-green-700"
+                          className="text-emerald-600 hover:text-emerald-700 transition-colors"
                         >
-                          <Check size={14} />
+                          <Check size={16} />
                         </button>
                         <button
                           onClick={() => setEditingTime(null)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-500 hover:text-red-600 transition-colors"
                         >
-                          <X size={14} />
+                          <X size={16} />
                         </button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2">
-                        <span className="text-blue-700 font-medium">{time}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-purple-700 font-semibold text-lg">{time}</span>
                         <button
                           onClick={() => setEditingTime(time)}
-                          className="text-blue-600 hover:text-blue-700"
+                          className="text-purple-600 hover:text-purple-700 transition-colors"
                         >
-                          <Edit3 size={14} />
+                          <Edit3 size={16} />
                         </button>
                         {checkTimes.length > 1 && (
                           <button
                             onClick={() => removeCheckTime(time)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-500 hover:text-red-600 transition-colors"
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                           </button>
                         )}
                       </div>
@@ -226,33 +340,33 @@ const TooGoodToGoMonitor = () => {
                 ))}
                 
                 {addTimeMode ? (
-                  <div className="flex items-center bg-green-50 rounded-lg px-3 py-2">
+                  <div className="flex items-center bg-gradient-to-r from-emerald-100 to-teal-100 rounded-xl px-4 py-3">
                     <input
                       type="time"
                       value={newTime}
                       onChange={(e) => setNewTime(e.target.value)}
-                      className="text-sm border-none bg-transparent"
+                      className="text-sm border-none bg-transparent text-emerald-700 font-medium"
                     />
                     <button
                       onClick={addCheckTime}
-                      className="ml-2 text-green-600 hover:text-green-700"
+                      className="ml-3 text-emerald-600 hover:text-emerald-700 transition-colors"
                     >
-                      <Check size={14} />
+                      <Check size={16} />
                     </button>
                     <button
                       onClick={() => setAddTimeMode(false)}
-                      className="ml-1 text-red-600 hover:text-red-700"
+                      className="ml-2 text-red-500 hover:text-red-600 transition-colors"
                     >
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => setAddTimeMode(true)}
-                    className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 text-gray-600"
+                    className="flex items-center gap-2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl px-4 py-3 text-gray-600 transition-all duration-300 transform hover:scale-105"
                   >
-                    <Plus size={14} />
-                    Ajouter
+                    <Plus size={16} />
+                    <span className="font-medium">Ajouter</span>
                   </button>
                 )}
               </div>
@@ -260,53 +374,86 @@ const TooGoodToGoMonitor = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Stores List */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="p-6 border-b border-gray-200">
+          <div className="xl:col-span-2">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Magasins surveillés</h2>
+                  <div>
+                    <h2 className="text-xl font-bold">🏪 Magasins surveillés</h2>
+                    <p className="text-white/90 mt-1">{stores.length} magasin(s) actif(s)</p>
+                  </div>
                   <button
                     onClick={() => setShowAddStore(!showAddStore)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                    className="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 transition-all duration-300 flex items-center gap-2 transform hover:scale-105"
                   >
-                    <Plus size={16} />
+                    <Plus size={18} />
                     Ajouter
                   </button>
                 </div>
               </div>
 
               {showAddStore && (
-                <div className="p-6 border-b border-gray-200 bg-gray-50">
-                  <h3 className="font-medium mb-3">Ajouter un nouveau magasin</h3>
-                  <div className="space-y-3">
+                <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <h3 className="font-semibold mb-4 text-lg text-gray-800">✨ Ajouter un nouveau magasin</h3>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Search size={16} className="text-gray-500" />
+                        <label className="font-medium text-gray-700">Rechercher un magasin</label>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Tapez le nom d'un magasin parisien..."
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          setNewStore({...newStore, name: e.target.value});
+                        }}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm"
+                      />
+                      
+                      {showSuggestions && filteredStores.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-60 overflow-y-auto">
+                          {filteredStores.map((store, index) => (
+                            <button
+                              key={index}
+                              onClick={() => selectStore(store)}
+                              className="w-full text-left px-4 py-3 hover:bg-indigo-50 transition-colors border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="font-medium text-gray-800">{store.name}</div>
+                              <div className="text-sm text-gray-600">{store.address}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
                     <input
                       type="text"
-                      placeholder="Nom du magasin"
-                      value={newStore.name}
-                      onChange={(e) => setNewStore({...newStore, name: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Adresse"
+                      placeholder="Adresse du magasin"
                       value={newStore.address}
                       onChange={(e) => setNewStore({...newStore, address: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm"
                     />
-                    <div className="flex gap-2">
+                    
+                    <div className="flex gap-3">
                       <button
                         onClick={addStore}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 font-medium shadow-lg transform hover:scale-105"
                       >
-                        Ajouter
+                        ✅ Ajouter
                       </button>
                       <button
-                        onClick={() => setShowAddStore(false)}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                        onClick={() => {
+                          setShowAddStore(false);
+                          setSearchTerm("");
+                          setNewStore({name: "", address: ""});
+                        }}
+                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-300 font-medium"
                       >
-                        Annuler
+                        ❌ Annuler
                       </button>
                     </div>
                   </div>
@@ -316,52 +463,56 @@ const TooGoodToGoMonitor = () => {
               <div className="p-6">
                 <div className="space-y-4">
                   {stores.map((store) => (
-                    <div key={store.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={store.id} className="bg-gradient-to-r from-white to-gray-50 border-2 border-gray-100 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900">{store.name}</h3>
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="font-bold text-xl text-gray-900">{store.name}</h3>
+                            <div className="flex items-center gap-1">
+                              <Star size={16} className="text-yellow-500 fill-current" />
+                              <span className="text-sm font-medium text-gray-600">{store.rating}</span>
+                            </div>
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              className={`px-3 py-1 rounded-full text-sm font-semibold ${
                                 store.available
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                  ? 'bg-emerald-100 text-emerald-800 shadow-sm'
+                                  : 'bg-red-100 text-red-800 shadow-sm'
                               }`}
                             >
-                              {store.available ? 'Disponible' : 'Rupture'}
+                              {store.available ? '✅ Disponible' : '❌ Rupture'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm flex items-center gap-1 mb-2">
-                            <MapPin size={14} />
+                          <p className="text-gray-600 flex items-center gap-2 mb-4">
+                            <MapPin size={16} className="text-blue-500" />
                             {store.address}
                           </p>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-500">Prix:</span>
-                              <span className="ml-1 font-medium flex items-center">
-                                <Euro size={14} />
-                                {store.price}
-                              </span>
+                          <div className="grid grid-cols-2 gap-6 text-sm">
+                            <div className="bg-blue-50 rounded-lg p-3">
+                              <span className="text-blue-600 font-medium">💰 Prix:</span>
+                              <div className="flex items-center mt-1">
+                                <Euro size={16} className="text-blue-600" />
+                                <span className="font-bold text-lg text-blue-700">{store.price}</span>
+                              </div>
                             </div>
-                            <div>
-                              <span className="text-gray-500">Quantité:</span>
-                              <span className="ml-1 font-medium">{store.quantity}</span>
+                            <div className="bg-purple-50 rounded-lg p-3">
+                              <span className="text-purple-600 font-medium">📦 Quantité:</span>
+                              <div className="font-bold text-lg text-purple-700 mt-1">{store.quantity}</div>
                             </div>
-                            <div>
-                              <span className="text-gray-500">Retrait:</span>
-                              <span className="ml-1 font-medium">{store.pickupTime}</span>
+                            <div className="bg-orange-50 rounded-lg p-3">
+                              <span className="text-orange-600 font-medium">🕐 Retrait:</span>
+                              <div className="font-bold text-orange-700 mt-1">{store.pickupTime}</div>
                             </div>
-                            <div>
-                              <span className="text-gray-500">Dernière vérif:</span>
-                              <span className="ml-1 font-medium">{store.lastCheck}</span>
+                            <div className="bg-green-50 rounded-lg p-3">
+                              <span className="text-green-600 font-medium">🔄 Dernière vérif:</span>
+                              <div className="font-bold text-green-700 mt-1">{store.lastCheck}</div>
                             </div>
                           </div>
                         </div>
                         <button
                           onClick={() => removeStore(store.id)}
-                          className="text-red-600 hover:text-red-700 ml-4"
+                          className="text-red-500 hover:text-red-700 ml-6 p-2 rounded-lg hover:bg-red-50 transition-all duration-300"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </div>
@@ -371,29 +522,34 @@ const TooGoodToGoMonitor = () => {
             </div>
           </div>
 
-          {/* Notifications Panel */}
-          <div>
-            <div className="bg-white rounded-lg shadow-sm">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold">Notifications récentes</h2>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Notifications Panel */}
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-6">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Bell size={20} />
+                  🔔 Notifications récentes
+                </h2>
               </div>
               <div className="p-6">
                 {notifications.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">
-                    Aucune notification pour le moment
-                  </p>
+                  <div className="text-center py-8">
+                    <Bell size={48} className="text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500">Aucune notification pour le moment</p>
+                    <p className="text-sm text-gray-400 mt-1">Activez les notifications dans les paramètres</p>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {notifications.map((notif) => (
-                      <div key={notif.id} className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <div className="flex items-center gap-2 text-green-800 font-medium text-sm">
-                          <Bell size={14} />
-                          {notif.time}
+                      <div key={notif.id} className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 shadow-sm">
+                        <div className="flex items-center gap-2 text-emerald-800 font-semibold">
+                          <Bell size={16} />
+                          <span>{notif.time}</span>
                         </div>
-                        <p className="text-green-700 text-sm mt-1">{notif.message}</p>
-                        <p className="text-green-600 text-xs mt-1">
-                          {notif.stores.join(', ')}
-                        </p>
+                        <p className="text-emerald-700 font-medium mt-1">{notif.message}</p>
+                        <p className="text-emerald-600 text-sm mt-1">{notif.stores.join(', ')}</p>
+                        <p className="text-xs text-emerald-500 mt-2">📩 {notif.methods}</p>
                       </div>
                     ))}
                   </div>
@@ -402,29 +558,29 @@ const TooGoodToGoMonitor = () => {
             </div>
 
             {/* Status Panel */}
-            <div className="bg-white rounded-lg shadow-sm mt-6">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold">État du système</h2>
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6">
+                <h2 className="text-xl font-bold">📊 État du système</h2>
               </div>
               <div className="p-6">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Magasins surveillés:</span>
-                    <span className="font-medium">{stores.length}</span>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">🏪 Magasins surveillés:</span>
+                    <span className="font-bold text-lg text-blue-600">{stores.length}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Vérifications/jour:</span>
-                    <span className="font-medium">{checkTimes.length}</span>
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">⏰ Vérifications/jour:</span>
+                    <span className="font-bold text-lg text-purple-600">{checkTimes.length}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Notifications:</span>
-                    <span className={`font-medium ${emailConfig.enabled ? 'text-green-600' : 'text-red-600'}`}>
-                      {emailConfig.enabled ? 'Activées' : 'Désactivées'}
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">📱 Notifications actives:</span>
+                    <span className={`font-bold text-lg ${getNotificationCount() > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {getNotificationCount()}/3
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Prochaine vérification:</span>
-                    <span className="font-medium">
+                  <div className="flex justify-between items-center py-3">
+                    <span className="text-gray-600 font-medium">🔄 Prochaine vérification:</span>
+                    <span className="font-bold text-lg text-orange-600">
                       {checkTimes.find(time => time > new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) || checkTimes[0]}
                     </span>
                   </div>
